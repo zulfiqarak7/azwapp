@@ -208,7 +208,7 @@ const Hero = ({ setView }: { setView: (view: string) => void }) => (
         <span className="text-red-600">AZW</span>
       </h1>
       <p className="mt-4 max-w-2xl mx-auto text-xl text-zinc-400 mb-10 font-light">
-        Strategy, Content, and Cinema for 2026.
+        Content, Visuals and Cinematic Photography For Your Music Career
       </p>
       <div className="flex justify-center gap-4">
         <button onClick={() => setView('packages')} className="px-8 py-4 bg-red-600 hover:bg-red-700 text-white font-bold text-lg rounded-none transition-all transform hover:scale-105 shadow-lg shadow-red-900/20 uppercase tracking-widest">
