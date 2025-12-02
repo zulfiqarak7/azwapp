@@ -3,7 +3,7 @@
 @tailwind utilities;
 
 body {
-  background-color: #09090b; /* Zinc-950 */
+  background-color: #27272a; /* Zinc-950 */
   color: white;
 }
 /* --- Add to bottom of src/index.css --- */
