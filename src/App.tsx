@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { 
   Camera, 
   Briefcase, 
@@ -23,9 +23,9 @@ import {
   signInWithEmailAndPassword, 
   signOut, 
   onAuthStateChanged,
-  signInWithCustomToken
+  signInWithCustomToken,
+  signInAnonymously
 } from "firebase/auth";
-// We import the Type specifically to keep TypeScript happy
 import type { User as FirebaseUser } from "firebase/auth";
 import { 
   getFirestore, 
@@ -39,6 +39,12 @@ import {
   serverTimestamp 
 } from "firebase/firestore";
 
+// --- 0. Global Variable Declarations (Fixes TS2304/TS2552) ---
+// This tells TypeScript these variables might exist globally (in StackBlitz)
+declare const __firebase_config: string | undefined;
+declare const __app_id: string | undefined;
+declare const __initial_auth_token: string | undefined;
+
 // --- 1. Strict Type Definitions ---
 interface Project {
   id: string;
@@ -50,7 +56,6 @@ interface Project {
   expense: number;
 }
 
-// We use strings for inputs to prevent 'number' assignment errors in HTML forms
 interface NewProjectState {
   clientName: string;
   projectName: string;
@@ -61,7 +66,6 @@ interface NewProjectState {
 }
 
 // --- 2. Firebase Configuration ---
-// This configuration will work on Vercel/Netlify AND StackBlitz
 const localConfig = {
   apiKey: "AIzaSyCM2J8JaRTJyXqqCqh1JM8tL_PqpQOPcAo",
   authDomain: "azw-landing.firebaseapp.com",
@@ -72,17 +76,15 @@ const localConfig = {
   measurementId: "G-E2ZG8V5H72"
 };
 
-// @ts-ignore
-const firebaseConfig = typeof __firebase_config !== 'undefined' 
-  // @ts-ignore
-  ? JSON.parse(__firebase_config) 
+// Robust check for environment variables
+const firebaseConfig = (typeof __firebase_config !== 'undefined' && __firebase_config)
+  ? JSON.parse(__firebase_config)
   : localConfig;
 
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
-// @ts-ignore
-const appId = typeof __app_id !== 'undefined' ? __app_id : 'azw-landing';
+const appId = (typeof __app_id !== 'undefined' && __app_id) ? __app_id : 'azw-landing';
 
 // --- 3. CSV Export Utility ---
 const exportToCSV = (data: Project[], fileName: string) => {
@@ -96,8 +98,7 @@ const exportToCSV = (data: Project[], fileName: string) => {
     ...data.map(row => {
       const dateStr = row.date ? new Date(row.date).toLocaleDateString() : '';
       const net = (row.income || 0) - (row.expense || 0);
-      // Escape strings to handle commas in names
-      const escape = (text: string) => `"${(text || '').toString().replace(/"/g, '""')}"`;
+      const escape = (text: string | number) => `"${(text || '').toString().replace(/"/g, '""')}"`;
       return [
         escape(row.clientName),
         escape(row.projectName),
@@ -140,9 +141,11 @@ const Navigation = ({ setView, user, currentView, isMobileMenuOpen, setIsMobileM
             alt="Directed By AZW" 
             className="h-12 w-auto object-contain hover:opacity-90 transition-opacity"
             onError={(e) => {
-              // Fallback if image fails
-              (e.target as HTMLElement).style.display = 'none'; 
-              ((e.target as HTMLElement).nextSibling as HTMLElement).style.display = 'block'; 
+              const target = e.target as HTMLImageElement;
+              target.style.display = 'none'; 
+              if (target.nextSibling) {
+                (target.nextSibling as HTMLElement).style.display = 'block';
+              }
             }}
           />
           <span className="hidden ml-2 text-xl font-bold text-white tracking-tighter italic" style={{fontFamily: 'serif'}}>
@@ -419,7 +422,11 @@ const Portfolio = () => {
 
 // --- Admin Section ---
 
-const Login = ({ setView }: { setView: (view: string) => void }) => {
+interface LoginProps {
+  setView: (view: string) => void;
+}
+
+const Login = ({ setView }: LoginProps) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
@@ -434,6 +441,15 @@ const Login = ({ setView }: { setView: (view: string) => void }) => {
       console.error(err);
     }
   };
+
+  const handleDemoLogin = async () => {
+    try {
+        await signInAnonymously(auth);
+        setView('admin');
+    } catch(err) {
+        setError("Demo login failed.");
+    }
+  }
 
   return (
     <div className="min-h-screen bg-zinc-950 flex flex-col items-center justify-center px-4">
@@ -474,6 +490,11 @@ const Login = ({ setView }: { setView: (view: string) => void }) => {
             Enter
           </button>
         </form>
+        <div className="mt-4 pt-4 border-t border-zinc-800 text-center">
+            <button onClick={handleDemoLogin} className="text-xs text-zinc-500 underline hover:text-white">
+                View Demo Dashboard
+            </button>
+        </div>
       </div>
     </div>
   );
@@ -667,9 +688,7 @@ export default function App() {
 
   useEffect(() => {
     // 1. Check if we're in the weird sandbox mode (local env check)
-    // @ts-ignore
     if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
-        // @ts-ignore
         signInWithCustomToken(auth, __initial_auth_token).catch(e => console.warn(e));
     }
 
@@ -703,8 +722,14 @@ export default function App() {
         <footer className="bg-zinc-950 border-t border-zinc-900 py-12 px-4">
           <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center text-zinc-600 text-sm">
             <div className="flex items-center mb-4 md:mb-0">
-               <img src="/logo.png" alt="Directed By AZW" className="h-6 w-auto opacity-50 grayscale hover:grayscale-0 transition-all" />
-               <span className="ml-3 text-xs font-bold uppercase tracking-wider text-zinc-600">2026 Season</span>
+               <img src="/logo.png" alt="Directed By AZW" className="h-6 w-auto opacity-50 grayscale hover:grayscale-0 transition-all" 
+                    onError={(e) => { 
+                      const target = e.target as HTMLImageElement;
+                      target.style.display = 'none'; 
+                      if (target.nextSibling) (target.nextSibling as HTMLElement).style.display = 'block'; 
+                    }} 
+               />
+               <span className="hidden ml-3 text-xs font-bold uppercase tracking-wider text-zinc-600">2026 Season</span>
             </div>
             <div className="flex space-x-6">
               <a href="#" className="hover:text-red-600 transition-colors">Instagram</a>

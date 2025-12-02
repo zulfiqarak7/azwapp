@@ -1,0 +1,7 @@
+[build]
+  command = "npm run build"
+  publish = "dist"
+
+[build.environment]
+  CI = "false" 
+  # CI="false" tells Netlify not to treat warnings as fatal errors.
