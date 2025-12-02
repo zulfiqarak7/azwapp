@@ -23,9 +23,10 @@ import {
   signInWithEmailAndPassword, 
   signOut, 
   onAuthStateChanged,
-  signInWithCustomToken,
-  signInAnonymously
+  signInWithCustomToken
 } from "firebase/auth";
+// We import the Type specifically to keep TypeScript happy
+import type { User as FirebaseUser } from "firebase/auth";
 import { 
   getFirestore, 
   collection, 
@@ -38,7 +39,29 @@ import {
   serverTimestamp 
 } from "firebase/firestore";
 
-// --- Firebase Configuration ---
+// --- 1. Strict Type Definitions ---
+interface Project {
+  id: string;
+  clientName: string;
+  projectName: string;
+  date: string;
+  status: string;
+  income: number;
+  expense: number;
+}
+
+// We use strings for inputs to prevent 'number' assignment errors in HTML forms
+interface NewProjectState {
+  clientName: string;
+  projectName: string;
+  date: string;
+  income: string;
+  expense: string;
+  status: string;
+}
+
+// --- 2. Firebase Configuration ---
+// This configuration will work on Vercel/Netlify AND StackBlitz
 const localConfig = {
   apiKey: "AIzaSyCM2J8JaRTJyXqqCqh1JM8tL_PqpQOPcAo",
   authDomain: "azw-landing.firebaseapp.com",
@@ -49,18 +72,20 @@ const localConfig = {
   measurementId: "G-E2ZG8V5H72"
 };
 
-// Check for environment/sandbox config, fallback to local
+// @ts-ignore
 const firebaseConfig = typeof __firebase_config !== 'undefined' 
+  // @ts-ignore
   ? JSON.parse(__firebase_config) 
   : localConfig;
 
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
+// @ts-ignore
 const appId = typeof __app_id !== 'undefined' ? __app_id : 'azw-landing';
 
-// --- Utility: Export to CSV ---
-const exportToCSV = (data, fileName) => {
+// --- 3. CSV Export Utility ---
+const exportToCSV = (data: Project[], fileName: string) => {
   if (!data || !data.length) {
     alert("No data to export");
     return;
@@ -70,8 +95,9 @@ const exportToCSV = (data, fileName) => {
     headers.join(','), 
     ...data.map(row => {
       const dateStr = row.date ? new Date(row.date).toLocaleDateString() : '';
-      const net = (parseFloat(row.income) || 0) - (parseFloat(row.expense) || 0);
-      const escape = (text) => `"${(text || '').toString().replace(/"/g, '""')}"`;
+      const net = (row.income || 0) - (row.expense || 0);
+      // Escape strings to handle commas in names
+      const escape = (text: string) => `"${(text || '').toString().replace(/"/g, '""')}"`;
       return [
         escape(row.clientName),
         escape(row.projectName),
@@ -93,22 +119,30 @@ const exportToCSV = (data, fileName) => {
   document.body.removeChild(link);
 };
 
-// --- Components ---
+// --- 4. Sub-Components ---
 
-const Navigation = ({ setView, user, currentView, isMobileMenuOpen, setIsMobileMenuOpen }) => (
+interface NavigationProps {
+  setView: (view: string) => void;
+  user: FirebaseUser | null;
+  currentView: string;
+  isMobileMenuOpen: boolean;
+  setIsMobileMenuOpen: (isOpen: boolean) => void;
+}
+
+const Navigation = ({ setView, user, currentView, isMobileMenuOpen, setIsMobileMenuOpen }: NavigationProps) => (
   <nav className="bg-zinc-950 border-b border-zinc-900 sticky top-0 z-50">
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <div className="flex justify-between h-20 items-center">
-        {/* LOGO SECTION */}
+        {/* LOGO */}
         <div className="flex items-center cursor-pointer" onClick={() => setView('home')}>
-          {/* Logo with text fallback for preview */}
           <img 
             src="/logo.png" 
             alt="Directed By AZW" 
             className="h-12 w-auto object-contain hover:opacity-90 transition-opacity"
             onError={(e) => {
-              e.target.style.display = 'none'; 
-              e.target.nextSibling.style.display = 'block'; 
+              // Fallback if image fails
+              (e.target as HTMLElement).style.display = 'none'; 
+              ((e.target as HTMLElement).nextSibling as HTMLElement).style.display = 'block'; 
             }}
           />
           <span className="hidden ml-2 text-xl font-bold text-white tracking-tighter italic" style={{fontFamily: 'serif'}}>
@@ -142,7 +176,7 @@ const Navigation = ({ setView, user, currentView, isMobileMenuOpen, setIsMobileM
       </div>
     </div>
 
-    {/* Mobile Menu */}
+    {/* Mobile Menu Dropdown */}
     {isMobileMenuOpen && (
       <div className="md:hidden bg-zinc-950 border-b border-zinc-900">
         <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3">
@@ -158,7 +192,7 @@ const Navigation = ({ setView, user, currentView, isMobileMenuOpen, setIsMobileM
   </nav>
 );
 
-const Hero = ({ setView }) => (
+const Hero = ({ setView }: { setView: (view: string) => void }) => (
   <div className="relative overflow-hidden bg-zinc-950 min-h-[calc(100vh-80px)] flex items-center justify-center">
     <div className="absolute top-0 left-0 w-full h-full overflow-hidden z-0">
       <div className="absolute -top-1/2 -left-1/2 w-full h-full bg-red-900/10 rounded-full blur-3xl opacity-20 animate-pulse"></div>
@@ -385,12 +419,12 @@ const Portfolio = () => {
 
 // --- Admin Section ---
 
-const Login = ({ setView }) => {
+const Login = ({ setView }: { setView: (view: string) => void }) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
 
-  const handleLogin = async (e) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
       await signInWithEmailAndPassword(auth, email, password);
@@ -400,16 +434,6 @@ const Login = ({ setView }) => {
       console.error(err);
     }
   };
-
-  const handleDemoLogin = async () => {
-    // Allows preview users to see the dashboard without credentials
-    try {
-        await signInAnonymously(auth);
-        setView('admin');
-    } catch(err) {
-        setError("Demo login failed.");
-    }
-  }
 
   return (
     <div className="min-h-screen bg-zinc-950 flex flex-col items-center justify-center px-4">
@@ -450,20 +474,15 @@ const Login = ({ setView }) => {
             Enter
           </button>
         </form>
-        <div className="mt-4 pt-4 border-t border-zinc-800 text-center">
-            <button onClick={handleDemoLogin} className="text-xs text-zinc-500 underline hover:text-white">
-                View Demo Dashboard
-            </button>
-        </div>
       </div>
     </div>
   );
 };
 
-const AdminDashboard = ({ user, setView }) => {
-  const [projects, setProjects] = useState([]);
+const AdminDashboard = ({ user, setView }: { user: FirebaseUser, setView: (view: string) => void }) => {
+  const [projects, setProjects] = useState<Project[]>([]);
   const [loading, setLoading] = useState(true);
-  const [newProject, setNewProject] = useState({
+  const [newProject, setNewProject] = useState<NewProjectState>({
     clientName: '',
     projectName: '',
     date: new Date().toISOString().split('T')[0],
@@ -478,28 +497,28 @@ const AdminDashboard = ({ user, setView }) => {
     if (!user) return;
     const q = query(collection(db, 'artifacts', appId, 'users', user.uid, collectionName), orderBy('date', 'desc'));
     const unsubscribe = onSnapshot(q, (snapshot) => {
-      const projData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+      const projData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Project));
       setProjects(projData);
       setLoading(false);
     }, (error) => { console.error(error); setLoading(false); });
     return () => unsubscribe();
   }, [user]);
 
-  const handleAddProject = async (e) => {
+  const handleAddProject = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!user) return;
     try {
       await addDoc(collection(db, 'artifacts', appId, 'users', user.uid, collectionName), {
         ...newProject,
-        income: parseFloat(newProject.income) || 0,
-        expense: parseFloat(newProject.expense) || 0,
+        income: parseFloat(newProject.income.toString()) || 0,
+        expense: parseFloat(newProject.expense.toString()) || 0,
         createdAt: serverTimestamp()
       });
       setNewProject({ clientName: '', projectName: '', date: new Date().toISOString().split('T')[0], income: '', expense: '', status: 'In Progress' });
     } catch (err) { alert("Failed to add project"); }
   };
 
-  const handleDelete = async (id) => {
+  const handleDelete = async (id: string) => {
     if (!confirm("Delete this record?")) return;
     try { await deleteDoc(doc(db, 'artifacts', appId, 'users', user.uid, collectionName, id)); } 
     catch (err) { console.error(err); }
@@ -643,7 +662,7 @@ const AdminDashboard = ({ user, setView }) => {
 
 export default function App() {
   const [view, setView] = useState('home');
-  const [user, setUser] = useState(null);
+  const [user, setUser] = useState<FirebaseUser | null>(null);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   useEffect(() => {
@@ -684,10 +703,8 @@ export default function App() {
         <footer className="bg-zinc-950 border-t border-zinc-900 py-12 px-4">
           <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center text-zinc-600 text-sm">
             <div className="flex items-center mb-4 md:mb-0">
-               {/* Logo Fallback Logic */}
-               <img src="/logo.png" alt="Directed By AZW" className="h-6 w-auto opacity-50 grayscale hover:grayscale-0 transition-all" 
-                    onError={(e) => { e.target.style.display = 'none'; e.target.nextSibling.style.display = 'block'; }} />
-               <span className="hidden ml-3 text-xs font-bold uppercase tracking-wider text-zinc-600">2026 Season</span>
+               <img src="/logo.png" alt="Directed By AZW" className="h-6 w-auto opacity-50 grayscale hover:grayscale-0 transition-all" />
+               <span className="ml-3 text-xs font-bold uppercase tracking-wider text-zinc-600">2026 Season</span>
             </div>
             <div className="flex space-x-6">
               <a href="#" className="hover:text-red-600 transition-colors">Instagram</a>
