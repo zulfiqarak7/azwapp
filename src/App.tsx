@@ -210,11 +210,11 @@ const Navigation = ({ setView, user, currentView, isMobileMenuOpen, setIsMobileM
 
     <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
       <h1 className="text-6xl md:text-8xl font-black text-white tracking-tighter mb-8 uppercase italic">
-        VISION & SOUND<br/>
-        <span className="text-red-600">AZW</span>
+        VISUALS FOR MUSICIANS<br/>
+        <span className="text-red-600">BOOK WITH TEAM AZW FOR 2026</span>
       </h1>
       <p className="mt-4 max-w-2xl mx-auto text-xl text-zinc-400 mb-10 font-light">
-        Strategy, Content, and Cinema for 2026.
+        MUSIC VIDEOS | PHOTOGRAPHS | COVER ART DESIGN | CREATIVE DIRECTION
       </p>
       <div className="flex justify-center gap-4">
         <button onClick={() => setView('packages')} className="px-8 py-4 bg-red-600 hover:bg-red-700 text-white font-bold text-lg rounded-none transition-all transform hover:scale-105 shadow-lg shadow-red-900/20 uppercase tracking-widest">
@@ -239,7 +239,7 @@ const Packages = () => {
           {/* THE ROLLOUT */}
           <div className="relative bg-zinc-900 border-2 border-red-600/50 p-8 rounded-xl shadow-2xl shadow-red-900/10">
             <div className="absolute -top-4 left-1/2 transform -translate-x-1/2 bg-red-600 text-white px-6 py-1 font-bold tracking-widest uppercase text-sm">
-              Best Value • 3 Month Plan
+              Best Value • Book for 3 months for additional discounts
             </div>
             
             <h3 className="text-3xl font-black text-white italic mb-2 uppercase text-center mt-4">The Rollout</h3>
@@ -297,9 +297,13 @@ const Packages = () => {
                 <p className="text-zinc-400 text-xs mt-1">Lock in w/ a friend and I knock <span className="text-white font-bold">$100 off</span> the first month for BOTH of you.</p>
             </div>
 
-            <button className="w-full py-4 bg-red-600 hover:bg-red-700 text-white font-bold uppercase tracking-widest transition-colors">
+            <a 
+              href="mailto:zulfiqar.ak7@gmail.com" 
+              className="block w-full text-center py-4 bg-red-600 hover:bg-red-700 text-white font-bold uppercase tracking-widest transition-colors cursor-pointer"
+            >
               Start Your Rollout
-            </button>
+            </a>
+            
           </div>
 
           {/* THE SINGLE */}
@@ -324,10 +328,12 @@ const Packages = () => {
               </li>
             </ul>
 
-            <button className="w-full py-4 bg-zinc-800 hover:bg-zinc-700 text-white font-bold uppercase tracking-widest transition-colors border border-zinc-700">
-              Book Single Video
-            </button>
-          </div>
+             <a 
+              href="mailto:zulfiqar.ak7@gmail.com" 
+              className="w-full py-4 bg-zinc-800 hover:bg-zinc-700 text-white font-bold uppercase tracking-widest transition-colors border border-zinc-700"
+            >
+              Book Now
+            </a>
 
         </div>
       </div>
@@ -738,8 +744,8 @@ export default function App() {
                <span className="hidden ml-3 text-xs font-bold uppercase tracking-wider text-zinc-600">2026 Season</span>
             </div>
             <div className="flex space-x-6">
-              <a href="#" className="hover:text-red-600 transition-colors">Instagram</a>
-              <a href="#" className="hover:text-red-600 transition-colors">Contact</a>
+              <a href="https://www.instagram.com/azw.one/" className="hover:text-red-600 transition-colors">Instagram</a>
+              <a href="https://linktr.ee/azwclothing" className="hover:text-red-600 transition-colors">Contact</a>
             </div>
           </div>
         </footer>
