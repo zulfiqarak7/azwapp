@@ -139,7 +139,7 @@ const Navigation = ({ setView, user, currentView, isMobileMenuOpen, setIsMobileM
           <img 
             src="/logo.png" 
             alt="Directed By AZW" 
-            className="h-12 w-auto object-contain hover:opacity-90 transition-opacity"
+            className="h-16 w-auto object-contain hover:opacity-90 transition-opacity"
             onError={(e) => {
               const target = e.target as HTMLImageElement;
               target.style.display = 'none'; 
@@ -195,7 +195,7 @@ const Navigation = ({ setView, user, currentView, isMobileMenuOpen, setIsMobileM
   </nav>
 );
 
- const Hero = ({ setView }: { setView: (view: string) => void }) => (
+const Hero = ({ setView }: { setView: (view: string) => void }) => (
   <div className="relative overflow-hidden bg-zinc-950 min-h-[calc(100vh-80px)] flex items-center justify-center">
     
     {/* 1. Heavy Grain Overlay (Fixed on top) */}
@@ -210,11 +210,11 @@ const Navigation = ({ setView, user, currentView, isMobileMenuOpen, setIsMobileM
 
     <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
       <h1 className="text-6xl md:text-8xl font-black text-white tracking-tighter mb-8 uppercase italic">
-        VISUALS FOR MUSICIANS<br/>
-        <span className="text-red-600">BOOK WITH TEAM AZW FOR 2026</span>
+        VISION & SOUND<br/>
+        <span className="text-red-600">AZW</span>
       </h1>
       <p className="mt-4 max-w-2xl mx-auto text-xl text-zinc-400 mb-10 font-light">
-        MUSIC VIDEOS | PHOTOGRAPHS | COVER ART DESIGN | CREATIVE DIRECTION
+        Strategy, Content, and Cinema for 2026.
       </p>
       <div className="flex justify-center gap-4">
         <button onClick={() => setView('packages')} className="px-8 py-4 bg-red-600 hover:bg-red-700 text-white font-bold text-lg rounded-none transition-all transform hover:scale-105 shadow-lg shadow-red-900/20 uppercase tracking-widest">
@@ -239,7 +239,7 @@ const Packages = () => {
           {/* THE ROLLOUT */}
           <div className="relative bg-zinc-900 border-2 border-red-600/50 p-8 rounded-xl shadow-2xl shadow-red-900/10">
             <div className="absolute -top-4 left-1/2 transform -translate-x-1/2 bg-red-600 text-white px-6 py-1 font-bold tracking-widest uppercase text-sm">
-              Best Value • Book for 3 months for additional discounts
+              Best Value • 3 Month Plan
             </div>
             
             <h3 className="text-3xl font-black text-white italic mb-2 uppercase text-center mt-4">The Rollout</h3>
@@ -298,12 +298,13 @@ const Packages = () => {
             </div>
 
             <a 
-              href="mailto:zulfiqar.ak7@gmail.com" 
+              href="https://linktr.ee/azwclothing" 
+              target="_blank"
+              rel="noopener noreferrer"
               className="block w-full text-center py-4 bg-red-600 hover:bg-red-700 text-white font-bold uppercase tracking-widest transition-colors cursor-pointer"
             >
               Start Your Rollout
             </a>
-            
           </div>
 
           {/* THE SINGLE */}
@@ -328,9 +329,11 @@ const Packages = () => {
               </li>
             </ul>
 
-             <a 
-              href="mailto:zulfiqar.ak7@gmail.com" 
-              className="w-full py-4 bg-zinc-800 hover:bg-zinc-700 text-white font-bold uppercase tracking-widest transition-colors border border-zinc-700"
+            <a 
+              href="https://linktr.ee/azwclothing" 
+              target="_blank"
+              rel="noopener noreferrer"
+              className="block w-full text-center py-4 bg-zinc-800 hover:bg-zinc-700 text-white font-bold uppercase tracking-widest transition-colors border border-zinc-700"
             >
               Book Now
             </a>
@@ -455,6 +458,7 @@ const Login = ({ setView }: LoginProps) => {
   };
 
   const handleDemoLogin = async () => {
+    // Allows preview users to see the dashboard without credentials
     try {
         await signInAnonymously(auth);
         setView('admin');
@@ -734,7 +738,7 @@ export default function App() {
         <footer className="bg-zinc-950 border-t border-zinc-900 py-12 px-4">
           <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center text-zinc-600 text-sm">
             <div className="flex items-center mb-4 md:mb-0">
-               <img src="/logo.png" alt="Directed By AZW" className="h-6 w-auto opacity-50 grayscale hover:grayscale-0 transition-all" 
+               <img src="/logo.png" alt="Directed By AZW" className="h-16 w-auto opacity-50 grayscale hover:grayscale-0 transition-all" 
                     onError={(e) => { 
                       const target = e.target as HTMLImageElement;
                       target.style.display = 'none'; 
