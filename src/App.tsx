@@ -657,7 +657,7 @@ const AdminDashboard = ({ user, setView }: { user: FirebaseUser, setView: (view:
                         </tr>
                     </thead>
                     <tbody className="divide-y divide-zinc-800">
-                        {loading ? <tr><td colSpan="6" className="text-center py-8">Loading...</td></tr> : 
+                        {loading ? <tr><td colSpan={6} className="text-center py-8">Loading...</td></tr> : 
                          projects.map((proj) => (
                             <tr key={proj.id} className="hover:bg-zinc-800/50 transition-colors">
                                 <td className="px-6 py-4 whitespace-nowrap">{proj.date}</td>
