@@ -195,11 +195,17 @@ const Navigation = ({ setView, user, currentView, isMobileMenuOpen, setIsMobileM
   </nav>
 );
 
-const Hero = ({ setView }: { setView: (view: string) => void }) => (
+ const Hero = ({ setView }: { setView: (view: string) => void }) => (
   <div className="relative overflow-hidden bg-zinc-950 min-h-[calc(100vh-80px)] flex items-center justify-center">
+    
+    {/* 1. Heavy Grain Overlay (Fixed on top) */}
+    <div className="absolute inset-0 z-[1] pointer-events-none bg-grain opacity-20 mix-blend-overlay"></div>
+
+    {/* 2. Moving Gradients */}
     <div className="absolute top-0 left-0 w-full h-full overflow-hidden z-0">
-      <div className="absolute -top-1/2 -left-1/2 w-full h-full bg-red-900/10 rounded-full blur-3xl opacity-20 animate-pulse"></div>
-      <div className="absolute top-1/2 left-1/2 w-full h-full bg-zinc-800/10 rounded-full blur-3xl opacity-20"></div>
+       <div className="absolute top-0 left-1/4 w-96 h-96 bg-red-600/30 rounded-full mix-blend-screen filter blur-[100px] opacity-50 animate-blob"></div>
+       <div className="absolute top-0 right-1/4 w-96 h-96 bg-red-900/30 rounded-full mix-blend-screen filter blur-[100px] opacity-50 animate-blob animation-delay-2000"></div>
+       <div className="absolute -bottom-32 left-1/3 w-96 h-96 bg-zinc-800/30 rounded-full mix-blend-screen filter blur-[100px] opacity-50 animate-blob animation-delay-4000"></div>
     </div>
 
     <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
@@ -208,7 +214,7 @@ const Hero = ({ setView }: { setView: (view: string) => void }) => (
         <span className="text-red-600">AZW</span>
       </h1>
       <p className="mt-4 max-w-2xl mx-auto text-xl text-zinc-400 mb-10 font-light">
-        Content, Visuals and Cinematic Photography For Your Music Career
+        Strategy, Content, and Cinema for 2026.
       </p>
       <div className="flex justify-center gap-4">
         <button onClick={() => setView('packages')} className="px-8 py-4 bg-red-600 hover:bg-red-700 text-white font-bold text-lg rounded-none transition-all transform hover:scale-105 shadow-lg shadow-red-900/20 uppercase tracking-widest">
