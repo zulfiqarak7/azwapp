@@ -208,9 +208,10 @@ const Hero = ({ setView }: { setView: (view: string) => void }) => (
        <div className="absolute -bottom-32 left-1/3 w-96 h-96 bg-zinc-800/30 rounded-full mix-blend-screen filter blur-[100px] opacity-50 animate-blob animation-delay-4000"></div>
     </div>
 
-    <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+   <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+      {/* UPDATED HEADLINE STYLE */}
       <h1 className="text-6xl md:text-8xl font-black text-white tracking-tighter mb-8 uppercase italic">
-        VISION & SOUND<br/>
+        i make cool stuff.<br/>
         <span className="text-red-600">AZW</span>
       </h1>
       <p className="mt-4 max-w-2xl mx-auto text-xl text-zinc-400 mb-10 font-light">
