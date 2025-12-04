@@ -17,7 +17,6 @@ import {
   LayoutDashboard,
   ArrowLeft,
   ArrowRight,
-  Plus
 } from 'lucide-react';
 import { initializeApp } from "firebase/app";
 import { 
