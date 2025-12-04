@@ -1,17 +1,12 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
-  Camera, 
-  Briefcase, 
-  Plus, 
   Trash2, 
   Lock, 
   LogOut, 
   Menu, 
   X,
   CheckCircle,
-  Users,
   Video,
-  Star,
   Home,
   PlayCircle,
   ExternalLink,
@@ -20,17 +15,15 @@ import {
   Palette,
   ArrowDown,
   LayoutDashboard,
-  ArrowLeft,  // Added ArrowLeft
-  ArrowRight  // Added ArrowRight
+  ArrowLeft,
+  ArrowRight
 } from 'lucide-react';
 import { initializeApp } from "firebase/app";
 import { 
   getAuth, 
   signInWithEmailAndPassword, 
-  signOut, 
   onAuthStateChanged,
-  signInWithCustomToken,
-  signInAnonymously
+  signInWithCustomToken
 } from "firebase/auth";
 import type { User as FirebaseUser } from "firebase/auth";
 import { 
@@ -209,7 +202,8 @@ const Navigation = ({ isMobileMenuOpen, setIsMobileMenuOpen, isAdminMode, setAdm
   </nav>
 );
 
-const Hero = ({ setView }: { setView: (view: string) => void }) => (
+// Removed 'setView' from props as it was unused
+const Hero = () => (
   <div id="hero" className="relative h-screen flex items-center justify-center overflow-hidden bg-zinc-950">
     {/* Background Effects */}
     <div className="absolute inset-0 bg-grain opacity-20 mix-blend-overlay z-[1] pointer-events-none"></div>
@@ -473,7 +467,7 @@ const Packages = () => (
             ))}
           </div>
 
-          <a href="https://linktr.ee/azwclothing" target="_blank" className="w-full py-5 bg-[#00D2BE] hover:bg-[#00b0a0] text-black font-black uppercase tracking-widest text-center transition-all">
+          <a href="https://linktr.ee/azwclothing" target="_blank" rel="noreferrer" className="w-full py-5 bg-[#00D2BE] hover:bg-[#00b0a0] text-black font-black uppercase tracking-widest text-center transition-all">
             Secure Your Slot
           </a>
         </div>
@@ -496,7 +490,7 @@ const Packages = () => (
             ))}
           </div>
 
-          <a href="https://linktr.ee/azwclothing" target="_blank" className="w-full py-5 bg-zinc-900 hover:bg-zinc-800 text-white font-black uppercase tracking-widest text-center transition-all border border-zinc-800">
+          <a href="https://linktr.ee/azwclothing" target="_blank" rel="noreferrer" className="w-full py-5 bg-zinc-900 hover:bg-zinc-800 text-white font-black uppercase tracking-widest text-center transition-all border border-zinc-800">
             Book Single
           </a>
         </div>
