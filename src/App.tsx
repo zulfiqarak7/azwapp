@@ -13,6 +13,7 @@ import {
   List,
   Image as ImageIcon,
   Palette,
+  ArrowDown,
   LayoutDashboard,
   ArrowLeft,
   ArrowRight,
@@ -292,9 +293,9 @@ const Portfolio = () => {
         "https://images.unsplash.com/photo-1560250097-0b93528c311a?w=1200&q=80"
     ],
     events: [
-        "https://images.unsplash.com/photo-1492684223066-81342ee5ff30?w=1200&q=80",
-        "https://images.unsplash.com/photo-1501281668745-f7f57925c3b4?w=1200&q=80",
-        "https://images.unsplash.com/photo-1514525253440-b393452e3720?w=1200&q=80"
+        // Linked to your local public folder files
+        "/image 4.jpg",
+        "/image 5.jpg"
     ]
   };
 
