@@ -32,7 +32,6 @@ import {
   onAuthStateChanged,
   signInWithCustomToken,
   signOut,
-  signInAnonymously
 } from "firebase/auth";
 import type { User as FirebaseUser } from "firebase/auth";
 import {
