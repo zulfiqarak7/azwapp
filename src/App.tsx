@@ -222,12 +222,12 @@ const Hero = () => (
 
     <div className="relative z-10 text-center px-4 max-w-5xl mx-auto">
       <h1 className="text-7xl md:text-9xl font-black text-white tracking-tighter uppercase italic leading-[0.9] mb-6">
-        VISION <br/>
-        <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#00D2BE] to-emerald-600">& SOUND</span>
+         art<br/>
+        <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#00D2BE] to-emerald-600">in motion</span>
       </h1>
       <div className="w-24 h-1 bg-[#00D2BE] mx-auto mb-8"></div>
       <p className="text-xl md:text-2xl text-zinc-400 font-light tracking-widest uppercase mb-12">
-        Strategy • Content • Cinema
+        professional media production with a focus on technical quality, organized workflow, and impactful results.
       </p>
       
       <div className="flex flex-col md:flex-row gap-6 justify-center">
@@ -276,6 +276,7 @@ const Portfolio = () => {
     { type: 'video', title: "Back Again", artist: "Zayyfrm050", img: "https://img.youtube.com/vi/oTqo4FKAEcc/maxresdefault.jpg", link: "https://youtu.be/oTqo4FKAEcc" },
     { type: 'video', title: "Everyday", artist: "Pa$ty", img: "https://img.youtube.com/vi/581MvmIE9to/maxresdefault.jpg", link: "https://youtu.be/581MvmIE9to" },
     { type: 'video', title: "Stay", artist: "Nyce Widdit", img: "https://img.youtube.com/vi/NOTk0b_ieNU/maxresdefault.jpg", link: "https://youtu.be/NOTk0b_ieNU" }
+    { type: 'video', title: "Feel Less Wrong Than Right", artist: "Cash$tar", img: "https://i.ytimg.com/vi/Xpbu7kPphdw/hqdefault.jpg?sqp=-oaymwFACKgBEF5IWvKriqkDMwgBFQAAiEIYAdgBAeIBCggYEAIYBjgBQAHwAQH4Af4JgALQBYoCDAgAEAEYZSBkKFIwDw==&rs=AOn4CLBtZ7o1hkIP3x2C_wcICYgvWIJDrg", link: "https://youtu.be/Xpbu7kPphdw?si=6oxweIJewTtaCYpo" }
   ];
 
   // Define the list of images for the slideshow
@@ -286,13 +287,19 @@ const Portfolio = () => {
     "/image 3.jpg",
     "/image 4.jpg",
     "/image 5.jpg"
+    "/image 6.jpg"
+  "/image 7.jpg"
+  "/image 8.jpg"
+  "/image 9.jpg"
+  "/image 10.jpg"
+  "/image 11.jpg"
   ];
 
   // Placeholder Design Data
   const designs = [
-    { id: 1, src: 'https://images.unsplash.com/photo-1626785774573-4b7993143a26?q=80&w=800', title: 'Album Cover Art' },
-    { id: 2, src: 'https://images.unsplash.com/photo-1611162617474-5b21e879e113?q=80&w=800', title: 'Event Flyer' },
-    { id: 3, src: 'https://images.unsplash.com/photo-1561070791-2526d30994b5?q=80&w=800', title: 'Logo Design' },
+    { id: 1, src: 'https://i.scdn.co/image/ab67616d00001e02df20ad5e0c7a56739dd4572c', title: 'Album Cover Art' },
+    { id: 2, src: 'https://source.boomplaymusic.com/group10/M00/03/24/d0693f5d471f4105a8018df36c5e302cH3000W3000_464_464.webp', title: 'Event Flyer' },
+    { id: 3, src: 'https://source.boomplaymusic.com/group10/M00/04/09/b7df39f73c2f4b10a51e557f32238e4b_464_464.webp', title: 'Logo Design' },
   ];
 
   const playlistUrl = "https://www.youtube.com/playlist?list=PLN86zTGXdQcoO-nbBlx3mSgAUTzYbFdqW";
