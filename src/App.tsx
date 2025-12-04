@@ -13,7 +13,6 @@ import {
   List,
   Image as ImageIcon,
   Palette,
-  ArrowDown,
   LayoutDashboard,
   ArrowLeft,
   ArrowRight,
