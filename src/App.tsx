@@ -154,13 +154,12 @@ const Navigation = ({ isMobileMenuOpen, setIsMobileMenuOpen, isAdminMode, setAdm
               }
             }}
           />
-          {/* Text fallback using Curvy font */}
-          <span className="hidden ml-2 text-xl font-serif font-black text-white tracking-tighter italic">
+          <span className="hidden ml-2 text-xl font-bold text-white tracking-tighter italic" style={{fontFamily: 'serif'}}>
             DIRECTED BY <span className="text-[#00D2BE]">AZW</span>
           </span>
         </div>
         
-        {/* Desktop Menu - Using BOXY font (font-mono) */}
+        {/* Desktop Menu */}
         {!isAdminMode && (
           <div className="hidden md:flex items-center space-x-8 font-mono">
             <button onClick={() => scrollToSection('hero')} className="text-sm font-medium text-zinc-400 hover:text-[#00D2BE] transition-colors uppercase tracking-widest">Home</button>
@@ -223,8 +222,8 @@ const Hero = () => (
     </div>
 
     <div className="relative z-10 text-center px-4 max-w-5xl mx-auto">
-      {/* SMALLER CURVY TITLE */}
-      <h1 className="text-5xl md:text-7xl font-serif font-black text-white tracking-tighter uppercase italic leading-[0.9] mb-6">
+      {/* SMALLER CURVY TITLE (Reduced from 7xl/9xl to 4xl/6xl) */}
+      <h1 className="text-4xl md:text-6xl font-serif font-black text-white tracking-tighter uppercase italic leading-[0.9] mb-6">
         VISION <br/>
         <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#00D2BE] to-emerald-600">& SOUND</span>
       </h1>
@@ -232,15 +231,15 @@ const Hero = () => (
       <div className="w-16 h-1 bg-[#00D2BE] mx-auto mb-8"></div>
       
       {/* SMALLER BOXY SUBTITLE */}
-      <p className="text-sm md:text-lg text-zinc-400 font-mono font-medium tracking-widest uppercase mb-12">
+      <p className="text-xs md:text-sm text-zinc-400 font-mono font-medium tracking-widest uppercase mb-12">
         Strategy • Content • Cinema
       </p>
       
       <div className="flex flex-col md:flex-row gap-6 justify-center font-mono">
-        <button onClick={() => scrollToSection('portfolio')} className="px-10 py-4 bg-transparent border border-white hover:bg-white hover:text-black text-white font-bold text-sm uppercase tracking-widest transition-all">
+        <button onClick={() => scrollToSection('portfolio')} className="px-10 py-4 bg-transparent border border-white hover:bg-white hover:text-black text-white font-bold text-xs uppercase tracking-widest transition-all">
           Explore Work
         </button>
-        <button onClick={() => scrollToSection('packages')} className="px-10 py-4 bg-[#00D2BE] hover:bg-[#00b0a0] text-black font-bold text-sm uppercase tracking-widest transition-all shadow-[0_0_20px_rgba(0,210,190,0.3)]">
+        <button onClick={() => scrollToSection('packages')} className="px-10 py-4 bg-[#00D2BE] hover:bg-[#00b0a0] text-black font-bold text-xs uppercase tracking-widest transition-all shadow-[0_0_20px_rgba(0,210,190,0.3)]">
           2026 Season
         </button>
       </div>
@@ -273,7 +272,6 @@ const Marquee = () => (
 const Portfolio = () => {
   const [activeTab, setActiveTab] = useState<'video' | 'photo' | 'design'>('video');
   const [currentSlide, setCurrentSlide] = useState(0);
-  const [photoFilter, setPhotoFilter] = useState<'all' | 'corporate' | 'wedding' | 'artist'>('all');
 
   const videos = [
     { type: 'video', title: "Another Love Song", artist: "Wilmo", img: "https://img.youtube.com/vi/OVSVo2zTMM0/maxresdefault.jpg", link: "https://youtu.be/OVSVo2zTMM0" },
@@ -302,7 +300,7 @@ const Portfolio = () => {
   return (
     <div id="portfolio" className="bg-zinc-900 py-32 px-4">
       <div className="max-w-7xl mx-auto">
-        <h2 className="text-4xl md:text-5xl font-serif font-black italic text-white mb-12 border-l-4 border-[#00D2BE] pl-6 uppercase">Selected Works</h2>
+        <h2 className="text-3xl md:text-4xl font-serif font-black italic text-white mb-12 border-l-4 border-[#00D2BE] pl-6 uppercase">Selected Works</h2>
         
         {/* TABS NAVIGATION - Boxy Font */}
         <div className="flex flex-wrap gap-4 mb-12 font-mono">
@@ -328,7 +326,7 @@ const Portfolio = () => {
                         <PlayCircle className="w-16 h-16 text-white opacity-80 group-hover:opacity-100 group-hover:text-[#00D2BE] transition-all transform group-hover:scale-110" />
                     </div>
                     <div className="absolute bottom-0 left-0 w-full p-6 bg-gradient-to-t from-black via-black/80 to-transparent">
-                        <h3 className="text-white font-serif font-bold text-xl italic leading-tight mb-1 group-hover:text-[#00D2BE] transition-colors">{item.title}</h3>
+                        <h3 className="text-white font-serif font-bold text-lg italic leading-tight mb-1 group-hover:text-[#00D2BE] transition-colors">{item.title}</h3>
                         <p className="text-zinc-400 text-xs font-mono uppercase tracking-widest">{item.artist}</p>
                         <div className="absolute right-4 bottom-4 opacity-0 group-hover:opacity-100 transition-opacity">
                             <ExternalLink size={16} className="text-white"/>
@@ -401,18 +399,18 @@ const Packages = () => (
     <div className="max-w-6xl mx-auto relative z-10">
       <div className="text-center mb-20">
         {/* CURVY TITLE */}
-        <h2 className="text-4xl md:text-5xl font-serif font-black text-white uppercase italic mb-6">2026 Season <span className="text-zinc-700 line-through decoration-[#00D2BE]">Pricing</span><br/> Offers</h2>
+        <h2 className="text-3xl md:text-4xl font-serif font-black text-white uppercase italic mb-6">2026 Season <span className="text-zinc-700 line-through decoration-[#00D2BE]">Pricing</span><br/> Offers</h2>
         {/* BOXY SUBTITLE */}
-        <p className="text-zinc-400 font-mono text-sm uppercase tracking-widest max-w-2xl mx-auto">Lock in your visual strategy for the year.</p>
+        <p className="text-zinc-400 font-mono text-xs uppercase tracking-widest max-w-2xl mx-auto">Lock in your visual strategy for the year.</p>
       </div>
 
       <div className="grid lg:grid-cols-2 gap-8 items-stretch">
         {/* THE ROLLOUT CARD */}
         <div className="bg-zinc-900 border border-zinc-800 p-10 hover:border-[#00D2BE] transition-all duration-300 flex flex-col group relative">
           <div className="absolute top-0 right-0 bg-[#00D2BE] text-black text-xs font-mono font-bold px-4 py-2 uppercase tracking-widest">Recommended</div>
-          <h3 className="text-4xl font-serif font-black text-white italic uppercase mb-2">The Rollout</h3>
+          <h3 className="text-3xl font-serif font-black text-white italic uppercase mb-2">The Rollout</h3>
           <p className="text-zinc-500 font-mono text-xs uppercase tracking-widest mb-8">Full monthly dominance.</p>
-          <div className="text-6xl font-serif font-black text-white mb-2">$850<span className="text-xl text-zinc-600 font-mono font-normal">/mo</span></div>
+          <div className="text-5xl font-serif font-black text-white mb-2">$850<span className="text-xl text-zinc-600 font-mono font-normal">/mo</span></div>
           <div className="h-px w-full bg-zinc-800 my-8"></div>
           <div className="space-y-4 mb-10 flex-grow font-mono">
             {['3 Music Videos / Month', '2 Photoshoots', '2 Content Days', 'Strategy & Scheduling', 'RMRP Show Access'].map((item, i) => (
@@ -427,9 +425,9 @@ const Packages = () => (
 
         {/* THE SINGLE CARD */}
         <div className="bg-zinc-950 border border-zinc-900 p-10 hover:border-zinc-700 transition-all duration-300 flex flex-col">
-          <h3 className="text-4xl font-serif font-black text-white italic uppercase mb-2">The Single</h3>
+          <h3 className="text-3xl font-serif font-black text-white italic uppercase mb-2">The Single</h3>
           <p className="text-zinc-500 font-mono text-xs uppercase tracking-widest mb-8">One-off visual execution.</p>
-          <div className="text-6xl font-serif font-black text-white mb-2">$450<span className="text-xl text-zinc-600 font-mono font-normal">/vid</span></div>
+          <div className="text-5xl font-serif font-black text-white mb-2">$450<span className="text-xl text-zinc-600 font-mono font-normal">/vid</span></div>
           <div className="h-px w-full bg-zinc-900 my-8"></div>
           <div className="space-y-4 mb-10 flex-grow font-mono">
             {['1 High Quality Video', 'Professional Editing', 'Color Grading', 'Standard Turnaround'].map((item, i) => (
@@ -518,7 +516,6 @@ const AdminDashboard = ({ user, setView }: AdminDashboardProps) => {
     if (confirm("Delete?")) await deleteDoc(doc(db, 'artifacts', appId, 'users', user.uid, 'projects', id));
   };
 
-  // Use a derived variable instead of useMemo for simplicity in this small scope
   const totals = projects.reduce((acc, curr) => ({
     income: acc.income + (curr.income || 0),
     expense: acc.expense + (curr.expense || 0),
