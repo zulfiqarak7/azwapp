@@ -31,7 +31,7 @@ import {
   signInWithEmailAndPassword,
   onAuthStateChanged,
   signInWithCustomToken,
-  signOut,
+  signOut
 } from "firebase/auth";
 import type { User as FirebaseUser } from "firebase/auth";
 import {
@@ -144,7 +144,6 @@ interface NavigationProps {
 }
 
 const Navigation = ({ isMobileMenuOpen, setIsMobileMenuOpen, isAdminMode, setAdminMode, user, setView }: NavigationProps) => {
-  // We use local state to track if the logo image failed to load
   const [logoError, setLogoError] = useState(false);
 
   return (
@@ -222,39 +221,29 @@ const Navigation = ({ isMobileMenuOpen, setIsMobileMenuOpen, isAdminMode, setAdm
 };
 
 const Hero = () => (
-  <div id="hero" className="relative h-screen flex items-center justify-center overflow-hidden bg-zinc-950">
-    {/* Background Effects */}
-    <div className="absolute inset-0 bg-grain opacity-20 mix-blend-overlay z-[1] pointer-events-none"></div>
-    <div className="absolute top-0 left-0 w-full h-full overflow-hidden z-0">
-       <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-[#00D2BE]/20 rounded-full mix-blend-screen filter blur-[120px] opacity-40 animate-blob"></div>
-       <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-emerald-600/10 rounded-full mix-blend-screen filter blur-[120px] opacity-40 animate-blob animation-delay-2000"></div>
-    </div>
+  <div id="hero" className="relative h-screen flex items-center justify-center overflow-hidden bg-black">
+    {/* Background Effects - Very subtle now */}
+    <div className="absolute inset-0 bg-grain opacity-10 mix-blend-overlay z-[1] pointer-events-none"></div>
 
-    <div className="relative z-10 text-center px-4 max-w-5xl mx-auto">
-      {/* SMALLER CURVY TITLE */}
-      <h1 className="text-4xl md:text-6xl font-serif font-black text-white tracking-tighter uppercase italic leading-[0.9] mb-6">
-        art <br/>
-        <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#00D2BE] to-emerald-600">in motion</span>
-      </h1>
+    <div className="relative z-10 flex flex-col items-center justify-center px-4 max-w-4xl mx-auto text-center h-full">
 
-      <div className="w-16 h-1 bg-[#00D2BE] mx-auto mb-8"></div>
-
-      {/* SMALLER BOXY SUBTITLE */}
-      <p className="text-xs md:text-sm text-zinc-400 font-mono font-medium tracking-widest uppercase mb-12">
-        professional media production with a focus on technical quality, organized workflow, and impactful results
+      {/* 1. Small Cyan Text */}
+      <p className="text-[#00D2BE] font-sans text-sm md:text-base mb-6 tracking-wide lowercase opacity-90">
+        art in motion
       </p>
 
-      <div className="flex flex-col md:flex-row gap-6 justify-center font-mono">
-        <button onClick={() => scrollToSection('portfolio')} className="px-10 py-4 bg-transparent border border-white hover:bg-white hover:text-black text-white font-bold text-xs uppercase tracking-widest transition-all">
+      {/* 2. Main Block Text - Matching Reference (Bold, White, Uppercase, Boxy) */}
+      <h1 className="text-white font-mono font-bold text-sm md:text-lg leading-relaxed tracking-widest uppercase max-w-xl mx-auto mb-16">
+        Professional media production with a focus on technical quality, organized workflow, and impactful results
+      </h1>
+
+      {/* 3. Subtle Call to Actions (Optional, kept minimal) */}
+      <div className="flex flex-col md:flex-row gap-6 justify-center font-mono opacity-80 hover:opacity-100 transition-opacity">
+        <button onClick={() => scrollToSection('portfolio')} className="px-8 py-3 bg-transparent border border-zinc-700 hover:border-[#00D2BE] text-zinc-400 hover:text-white font-bold text-xs uppercase tracking-widest transition-all">
           Explore Work
         </button>
-        <button onClick={() => scrollToSection('packages')} className="px-10 py-4 bg-[#00D2BE] hover:bg-[#00b0a0] text-black font-bold text-xs uppercase tracking-widest transition-all shadow-[0_0_20px_rgba(0,210,190,0.3)]">
-          2026 Season
-        </button>
       </div>
-    </div>
-    <div className="absolute bottom-10 left-1/2 transform -translate-x-1/2 animate-bounce text-zinc-500">
-      <ArrowDown size={24} />
+
     </div>
   </div>
 );
@@ -804,8 +793,6 @@ export default function App() {
         try {
             if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
                 await signInWithCustomToken(auth, __initial_auth_token);
-            } else {
-                // await signInAnonymously(auth);
             }
         } catch (e) {
             console.warn("Auth init warning:", e);
