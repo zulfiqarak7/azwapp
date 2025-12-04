@@ -275,8 +275,8 @@ const Portfolio = () => {
     { type: 'video', title: "HAHA!", artist: "Pa$ty", img: "https://img.youtube.com/vi/y9krRRjjLEA/maxresdefault.jpg", link: "https://youtu.be/y9krRRjjLEA" },
     { type: 'video', title: "Back Again", artist: "Zayyfrm050", img: "https://img.youtube.com/vi/oTqo4FKAEcc/maxresdefault.jpg", link: "https://youtu.be/oTqo4FKAEcc" },
     { type: 'video', title: "Everyday", artist: "Pa$ty", img: "https://img.youtube.com/vi/581MvmIE9to/maxresdefault.jpg", link: "https://youtu.be/581MvmIE9to" },
-    { type: 'video', title: "Stay", artist: "Nyce Widdit", img: "https://img.youtube.com/vi/NOTk0b_ieNU/maxresdefault.jpg", link: "https://youtu.be/NOTk0b_ieNU" }
-    { type: 'video', title: "Feel Less Wrong Than Right", artist: "Cash$tar", img: "https://i.ytimg.com/vi/Xpbu7kPphdw/hqdefault.jpg?sqp=-oaymwFACKgBEF5IWvKriqkDMwgBFQAAiEIYAdgBAeIBCggYEAIYBjgBQAHwAQH4Af4JgALQBYoCDAgAEAEYZSBkKFIwDw==&rs=AOn4CLBtZ7o1hkIP3x2C_wcICYgvWIJDrg", link: "https://youtu.be/Xpbu7kPphdw?si=6oxweIJewTtaCYpo" }
+    { type: 'video', title: "Stay", artist: "Nyce Widdit", img: "https://img.youtube.com/vi/NOTk0b_ieNU/maxresdefault.jpg", link: "https://youtu.be/NOTk0b_ieNU" },
+    { type: 'video', title: "Feel Less Wrong Than Right", artist: "Cash$tar", img: "https://i.ytimg.com/vi/Xpbu7kPphdw/hqdefault.jpg?sqp=-oaymwFACKgBEF5IWvKriqkDMwgBFQAAiEIYAdgBAeIBCggYEAIYBjgBQAHwAQH4Af4JgALQBYoCDAgAEAEYZSBkKFIwDw==&rs=AOn4CLBtZ7o1hkIP3x2C_wcICYgvWIJDrg", link: "https://youtu.be/Xpbu7kPphdw?si=6oxweIJewTtaCYpo" },
   ];
 
   // Define the list of images for the slideshow
