@@ -1,12 +1,23 @@
+/* Import Google Fonts: Playfair Display (Curvy) & Space Mono (Boxy) */
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=Space+Mono:ital,wght@0,400;0,700;1,400;1,700&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-body {
-  background-color: #27272a; /* Zinc-950 */
-  color: white;
+@layer base {
+  html {
+    /* Default to "Boxy" (Space Mono) for all standard text */
+    font-family: 'Space Mono', monospace; 
+    background-color: #09090b;
+    color: white;
+  }
+  
+  /* Force "Curvy" (Playfair Display) for all Headings */
+  h1, h2, h3, h4, h5, h6 {
+    font-family: 'Playfair Display', serif;
+  }
 }
-/* --- Add to bottom of src/index.css --- */
 
 @layer utilities {
   .bg-grain {
