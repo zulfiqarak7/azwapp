@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { 
-  Trash2, 
-  Lock, 
-  LogOut, 
-  Menu, 
+import {
+  Trash2,
+  Lock,
+  LogOut,
+  Menu,
   X,
   CheckCircle,
   Video,
@@ -17,26 +17,34 @@ import {
   LayoutDashboard,
   ArrowLeft,
   ArrowRight,
+  User,
+  Users,
+  Calendar,
+  Briefcase,
+  Music,
+  Camera,
+  GraduationCap
 } from 'lucide-react';
 import { initializeApp } from "firebase/app";
-import { 
-  getAuth, 
-  signInWithEmailAndPassword, 
-  signOut, 
+import {
+  getAuth,
+  signInWithEmailAndPassword,
   onAuthStateChanged,
-  signInWithCustomToken
+  signInWithCustomToken,
+  signOut,
+  signInAnonymously
 } from "firebase/auth";
 import type { User as FirebaseUser } from "firebase/auth";
-import { 
-  getFirestore, 
-  collection, 
-  addDoc, 
-  onSnapshot, 
-  deleteDoc, 
-  doc, 
-  query, 
+import {
+  getFirestore,
+  collection,
+  addDoc,
+  onSnapshot,
+  deleteDoc,
+  doc,
+  query,
   orderBy,
-  serverTimestamp 
+  serverTimestamp
 } from "firebase/firestore";
 
 // --- 0. Global Variable Declarations ---
@@ -60,8 +68,7 @@ interface NewProjectState {
   projectName: string;
   date: string;
   income: string;
-  expense: string;
-  status: string;
+  expense: string;  status: string;
 }
 
 // --- 2. Firebase Configuration ---
@@ -94,12 +101,12 @@ const scrollToSection = (id: string) => {
 
 const exportToCSV = (data: Project[], fileName: string) => {
   if (!data || !data.length) {
-    alert("No data to export");
+    console.warn("No data to export");
     return;
   }
   const headers = ["Client Name", "Project Name", "Date", "Status", "Income ($)", "Expenses ($)", "Net ($)"];
   const csvRows = [
-    headers.join(','), 
+    headers.join(','),
     ...data.map(row => {
       const dateStr = row.date ? new Date(row.date).toLocaleDateString() : '';
       const net = (row.income || 0) - (row.expense || 0);
@@ -142,23 +149,11 @@ const Navigation = ({ isMobileMenuOpen, setIsMobileMenuOpen, isAdminMode, setAdm
       <div className="flex justify-between h-20 items-center">
         {/* LOGO */}
         <div className="flex items-center cursor-pointer" onClick={() => scrollToSection('hero')}>
-          <img 
-            src="/logo.png" 
-            alt="Directed By AZW" 
-            className="h-16 w-auto object-contain hover:opacity-90 transition-opacity"
-            onError={(e) => {
-              const target = e.target as HTMLImageElement;
-              target.style.display = 'none'; 
-              if (target.nextSibling) {
-                (target.nextSibling as HTMLElement).style.display = 'block';
-              }
-            }}
-          />
-          <span className="hidden ml-2 text-xl font-bold text-white tracking-tighter italic" style={{fontFamily: 'serif'}}>
+           <span className="text-xl font-bold text-white tracking-tighter italic" style={{fontFamily: 'serif'}}>
             DIRECTED BY <span className="text-[#00D2BE]">AZW</span>
           </span>
         </div>
-        
+
         {/* Desktop Menu */}
         {!isAdminMode && (
           <div className="hidden md:flex items-center space-x-8 font-mono">
@@ -168,7 +163,7 @@ const Navigation = ({ isMobileMenuOpen, setIsMobileMenuOpen, isAdminMode, setAdm
             <a href="https://linktr.ee/azwclothing" target="_blank" rel="noreferrer" className="px-6 py-2 bg-[#00D2BE] hover:bg-[#00b0a0] text-black font-bold text-xs uppercase tracking-widest rounded-none transition-all">
               Book Now
             </a>
-            
+
             {/* Dashboard Link */}
             {user && (
                 <button onClick={() => setView('admin')} className="flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-zinc-400 hover:text-white border border-zinc-700 hover:border-zinc-500 px-4 py-2 transition-all">
@@ -222,19 +217,19 @@ const Hero = () => (
     </div>
 
     <div className="relative z-10 text-center px-4 max-w-5xl mx-auto">
-      {/* SMALLER CURVY TITLE (Reduced from 7xl/9xl to 4xl/6xl) */}
-      <h1 className="text-6xl md:text-8xl font-serif font-black text-white tracking-tighter uppercase italic leading-[0.9] mb-6">
+      {/* SMALLER CURVY TITLE */}
+      <h1 className="text-4xl md:text-6xl font-serif font-black text-white tracking-tighter uppercase italic leading-[0.9] mb-6">
         art <br/>
         <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#00D2BE] to-emerald-600">in motion</span>
       </h1>
-      
+
       <div className="w-16 h-1 bg-[#00D2BE] mx-auto mb-8"></div>
-      
+
       {/* SMALLER BOXY SUBTITLE */}
       <p className="text-xs md:text-sm text-zinc-400 font-mono font-medium tracking-widest uppercase mb-12">
         professional media production with a focus on technical quality, organized workflow, and impactful results
       </p>
-      
+
       <div className="flex flex-col md:flex-row gap-6 justify-center font-mono">
         <button onClick={() => scrollToSection('portfolio')} className="px-10 py-4 bg-transparent border border-white hover:bg-white hover:text-black text-white font-bold text-xs uppercase tracking-widest transition-all">
           Explore Work
@@ -244,7 +239,6 @@ const Hero = () => (
         </button>
       </div>
     </div>
-
     <div className="absolute bottom-10 left-1/2 transform -translate-x-1/2 animate-bounce text-zinc-500">
       <ArrowDown size={24} />
     </div>
@@ -271,6 +265,7 @@ const Marquee = () => (
 
 const Portfolio = () => {
   const [activeTab, setActiveTab] = useState<'video' | 'photo' | 'design'>('video');
+  const [photoSubTab, setPhotoSubTab] = useState<'portraits' | 'headshots' | 'events'>('portraits');
   const [currentSlide, setCurrentSlide] = useState(0);
 
   const videos = [
@@ -282,27 +277,51 @@ const Portfolio = () => {
     { type: 'video', title: "Feel Less Wrong Than Right", artist: "Cash$tarr", img: "https://img.youtube.com/vi/Xpbu7kPphdw/maxresdefault.jpg", link: "https://youtu.be/Xpbu7kPphdw" }
   ];
 
-  const slideImages = [
-    "/image 1.jpg", "/image 2.jpg", "/image 3.jpg", "/image 4.jpg", "/image 5.jpg",
-    "/image 6.jpg", "/image 7.jpg", "/image 8.jpg", "/image 9.jpg", "/image 10.jpg", "/image 11.jpg"
-  ];
+  // Images for each photo section
+  const photoImages = {
+    portraits: [
+        "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=1200&q=80",
+        "https://images.unsplash.com/photo-1517841905240-472988babdf9?w=1200&q=80",
+        "https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?w=1200&q=80"
+    ],
+    headshots: [
+        "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=1200&q=80",
+        "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=1200&q=80",
+        "https://images.unsplash.com/photo-1560250097-0b93528c311a?w=1200&q=80"
+    ],
+    events: [
+        "https://images.unsplash.com/photo-1492684223066-81342ee5ff30?w=1200&q=80",
+        "https://images.unsplash.com/photo-1501281668745-f7f57925c3b4?w=1200&q=80",
+        "https://images.unsplash.com/photo-1514525253440-b393452e3720?w=1200&q=80"
+    ]
+  };
+
+  const currentPhotoSet = photoImages[photoSubTab];
 
   const designs = [
     { id: 1, src: 'https://i.scdn.co/image/ab67616d00001e02df20ad5e0c7a56739dd4572c', title: 'Album Cover Art' },
     { id: 2, src: 'https://source.boomplaymusic.com/group10/M00/03/24/d0693f5d471f4105a8018df36c5e302cH3000W3000_464_464.webp', title: 'Event Flyer' },
     { id: 3, src: 'https://source.boomplaymusic.com/group10/M00/04/09/b7df39f73c2f4b10a51e557f32238e4b_464_464.webp', title: 'Logo Design' },
+    { id: 4, src: 'https://images.unsplash.com/photo-1626785774573-4b7993143a2d?w=800&q=80', title: 'Merch Design' },
+    { id: 5, src: 'https://images.unsplash.com/photo-1611162617474-5b21e879e113?w=800&q=80', title: 'Social Asset' },
+    { id: 6, src: 'https://images.unsplash.com/photo-1558655146-d09347e0b7a8?w=800&q=80', title: 'Branding Kit' },
   ];
 
   const playlistUrl = "https://www.youtube.com/playlist?list=PLN86zTGXdQcoO-nbBlx3mSgAUTzYbFdqW";
 
-  const nextSlide = () => setCurrentSlide((prev) => (prev === slideImages.length - 1 ? 0 : prev + 1));
-  const prevSlide = () => setCurrentSlide((prev) => (prev === 0 ? slideImages.length - 1 : prev - 1));
+  const nextSlide = () => setCurrentSlide((prev) => (prev === currentPhotoSet.length - 1 ? 0 : prev + 1));
+  const prevSlide = () => setCurrentSlide((prev) => (prev === 0 ? currentPhotoSet.length - 1 : prev - 1));
+
+  // Reset slide when switching sub-tabs
+  useEffect(() => {
+    setCurrentSlide(0);
+  }, [photoSubTab]);
 
   return (
     <div id="portfolio" className="bg-zinc-900 py-32 px-4">
       <div className="max-w-7xl mx-auto">
         <h2 className="text-3xl md:text-4xl font-serif font-black italic text-white mb-12 border-l-4 border-[#00D2BE] pl-6 uppercase">Selected Works</h2>
-        
+
         {/* TABS NAVIGATION - Boxy Font */}
         <div className="flex flex-wrap gap-4 mb-12 font-mono">
             <button onClick={() => setActiveTab('video')} className={`px-6 py-2 font-bold uppercase tracking-widest text-xs transition-all border ${activeTab === 'video' ? 'bg-[#00D2BE] text-black border-[#00D2BE]' : 'bg-transparent text-zinc-500 border-zinc-800 hover:text-white hover:border-white'}`}>
@@ -346,31 +365,67 @@ const Portfolio = () => {
 
         {/* --- PHOTOGRAPHY SECTION --- */}
         {activeTab === 'photo' && (
-            <div className="relative w-full max-w-5xl mx-auto aspect-video bg-zinc-950 border border-zinc-800 overflow-hidden group">
-                <img 
-                    src={slideImages[currentSlide]} 
-                    alt={`Slide ${currentSlide + 1}`} 
-                    className="w-full h-full object-contain transition-opacity duration-500"
-                    onError={(e) => {
-                        (e.target as HTMLElement).style.display = 'none'; 
-                        if ((e.target as HTMLElement).nextSibling) ((e.target as HTMLElement).nextSibling as HTMLElement).style.display = 'flex'; 
-                    }}
-                />
-                <div className="hidden absolute inset-0 items-center justify-center text-zinc-500 flex-col font-mono">
-                    <ImageIcon size={48} className="mb-4"/>
-                    <p>Image not found: {slideImages[currentSlide]}</p>
-                    <p className="text-xs mt-2">Add 'image {currentSlide + 1}.jpg' to public folder</p>
+            <div className="space-y-8">
+                {/* Photo Sub-Tabs */}
+                <div className="flex justify-center gap-6 font-mono border-b border-zinc-800 pb-4">
+                     <button
+                        onClick={() => setPhotoSubTab('portraits')}
+                        className={`text-xs uppercase tracking-widest font-bold transition-colors ${photoSubTab === 'portraits' ? 'text-[#00D2BE]' : 'text-zinc-500 hover:text-white'}`}
+                     >
+                        Artist Portraits
+                     </button>
+                     <span className="text-zinc-800">|</span>
+                     <button
+                        onClick={() => setPhotoSubTab('headshots')}
+                        className={`text-xs uppercase tracking-widest font-bold transition-colors ${photoSubTab === 'headshots' ? 'text-[#00D2BE]' : 'text-zinc-500 hover:text-white'}`}
+                     >
+                        Headshots
+                     </button>
+                     <span className="text-zinc-800">|</span>
+                     <button
+                        onClick={() => setPhotoSubTab('events')}
+                        className={`text-xs uppercase tracking-widest font-bold transition-colors ${photoSubTab === 'events' ? 'text-[#00D2BE]' : 'text-zinc-500 hover:text-white'}`}
+                     >
+                        Special Events
+                     </button>
                 </div>
-                <button onClick={prevSlide} className="absolute left-4 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-[#00D2BE] text-white hover:text-black p-3 transition-all backdrop-blur-sm">
-                    <ArrowLeft size={24} />
-                </button>
-                <button onClick={nextSlide} className="absolute right-4 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-[#00D2BE] text-white hover:text-black p-3 transition-all backdrop-blur-sm">
-                    <ArrowRight size={24} />
-                </button>
-                <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex gap-2">
-                    {slideImages.map((_, idx) => (
-                        <button key={idx} onClick={() => setCurrentSlide(idx)} className={`h-1 transition-all ${currentSlide === idx ? 'bg-[#00D2BE] w-8' : 'bg-white/30 w-4 hover:bg-white/50'}`} />
-                    ))}
+
+                <div className="relative w-full max-w-5xl mx-auto aspect-video bg-zinc-950 border border-zinc-800 overflow-hidden group">
+                    <img
+                        src={currentPhotoSet[currentSlide]}
+                        alt={`Slide ${currentSlide + 1}`}
+                        className="w-full h-full object-contain transition-opacity duration-500"
+                        onError={(e) => {
+                            (e.target as HTMLElement).style.display = 'none';
+                            if ((e.target as HTMLElement).nextSibling) ((e.target as HTMLElement).nextSibling as HTMLElement).style.display = 'flex';
+                        }}
+                    />
+                    <div className="hidden absolute inset-0 items-center justify-center text-zinc-500 flex-col font-mono">
+                        <ImageIcon size={48} className="mb-4"/>
+                        <p>Image not found</p>
+                    </div>
+
+                    {/* Navigation Arrows */}
+                    <button onClick={prevSlide} className="absolute left-4 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-[#00D2BE] text-white hover:text-black p-3 transition-all backdrop-blur-sm z-10">
+                        <ArrowLeft size={24} />
+                    </button>
+                    <button onClick={nextSlide} className="absolute right-4 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-[#00D2BE] text-white hover:text-black p-3 transition-all backdrop-blur-sm z-10">
+                        <ArrowRight size={24} />
+                    </button>
+
+                    {/* Pagination Dots */}
+                    <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex gap-2">
+                        {currentPhotoSet.map((_, idx) => (
+                            <button key={idx} onClick={() => setCurrentSlide(idx)} className={`h-1 transition-all ${currentSlide === idx ? 'bg-[#00D2BE] w-8' : 'bg-white/30 w-4 hover:bg-white/50'}`} />
+                        ))}
+                    </div>
+
+                    {/* Sub-section Label */}
+                    <div className="absolute top-6 left-6 bg-black/70 px-4 py-2 text-[#00D2BE] font-mono text-xs font-bold uppercase tracking-widest backdrop-blur-md">
+                        {photoSubTab === 'portraits' && 'Artist Portraits'}
+                        {photoSubTab === 'headshots' && 'Professional Headshots'}
+                        {photoSubTab === 'events' && 'Special Events'}
+                    </div>
                 </div>
             </div>
         )}
@@ -382,7 +437,7 @@ const Portfolio = () => {
                     <div key={design.id} className="group relative aspect-square bg-zinc-900 overflow-hidden border border-zinc-800">
                         <img src={design.src} alt={design.title} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110 opacity-80 group-hover:opacity-100"/>
                         <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                            <h3 className="text-white font-serif text-2xl font-bold italic uppercase tracking-widest">{design.title}</h3>
+                            <h3 className="text-white font-serif text-2xl font-bold italic uppercase tracking-widest px-4 text-center">{design.title}</h3>
                         </div>
                     </div>
                 ))}
@@ -393,57 +448,184 @@ const Portfolio = () => {
   );
 };
 
-const Packages = () => (
-  <div id="packages" className="bg-zinc-950 py-32 px-4 relative overflow-hidden">
-    <div className="absolute right-0 top-1/2 transform -translate-y-1/2 w-[500px] h-[500px] bg-[#00D2BE]/5 rounded-full blur-[120px] pointer-events-none"></div>
+const Packages = () => {
+    const [pricingCategory, setPricingCategory] = useState<'music' | 'corporate' | 'events'>('music');
 
-    <div className="max-w-6xl mx-auto relative z-10">
-      <div className="text-center mb-20">
-        {/* CURVY TITLE */}
-        <h2 className="text-3xl md:text-4xl font-serif font-black text-white uppercase italic mb-6">2026 Season <span className="text-zinc-700 line-through decoration-[#00D2BE]">Pricing</span><br/> Offers</h2>
-        {/* BOXY SUBTITLE */}
-        <p className="text-zinc-400 font-mono text-xs uppercase tracking-widest max-w-2xl mx-auto">Lock in your visual strategy for the year.</p>
-      </div>
-
-      <div className="grid lg:grid-cols-2 gap-8 items-stretch">
-        {/* THE ROLLOUT CARD */}
-        <div className="bg-zinc-900 border border-zinc-800 p-10 hover:border-[#00D2BE] transition-all duration-300 flex flex-col group relative">
-          <div className="absolute top-0 right-0 bg-[#00D2BE] text-black text-xs font-mono font-bold px-4 py-2 uppercase tracking-widest">Recommended</div>
-          <h3 className="text-3xl font-serif font-black text-white italic uppercase mb-2">The Rollout</h3>
-          <p className="text-zinc-500 font-mono text-xs uppercase tracking-widest mb-8">Full monthly dominance.</p>
-          <div className="text-5xl font-serif font-black text-white mb-2">$850<span className="text-xl text-zinc-600 font-mono font-normal">/mo</span></div>
-          <div className="h-px w-full bg-zinc-800 my-8"></div>
-          <div className="space-y-4 mb-10 flex-grow font-mono">
-            {['3 Music Videos / Month', '2 Photoshoots', '2 Content Days', 'Strategy & Scheduling', 'RMRP Show Access'].map((item, i) => (
-              <div key={i} className="flex items-center gap-3 text-zinc-300">
-                <CheckCircle size={16} className="text-[#00D2BE]" />
-                <span className="uppercase tracking-widest text-xs font-bold">{item}</span>
-              </div>
-            ))}
+    return (
+      <div id="packages" className="bg-zinc-950 py-32 px-4 relative overflow-hidden">
+        <div className="absolute right-0 top-1/2 transform -translate-y-1/2 w-[500px] h-[500px] bg-[#00D2BE]/5 rounded-full blur-[120px] pointer-events-none"></div>
+        <div className="max-w-6xl mx-auto relative z-10">
+          <div className="text-center mb-12">
+            {/* CURVY TITLE */}
+            <h2 className="text-3xl md:text-4xl font-serif font-black text-white uppercase italic mb-6">2026 Season <span className="text-zinc-700 line-through decoration-[#00D2BE]">Pricing</span><br/> Offers</h2>
+            {/* BOXY SUBTITLE */}
+            <p className="text-zinc-400 font-mono text-xs uppercase tracking-widest max-w-2xl mx-auto">Lock in your visual strategy for the year.</p>
           </div>
-          <a href="https://linktr.ee/azwclothing" target="_blank" rel="noreferrer" className="w-full py-4 bg-[#00D2BE] hover:bg-[#00b0a0] text-black font-mono font-bold text-sm uppercase tracking-widest text-center transition-all">Secure Your Slot</a>
-        </div>
 
-        {/* THE SINGLE CARD */}
-        <div className="bg-zinc-950 border border-zinc-900 p-10 hover:border-zinc-700 transition-all duration-300 flex flex-col">
-          <h3 className="text-3xl font-serif font-black text-white italic uppercase mb-2">The Single</h3>
-          <p className="text-zinc-500 font-mono text-xs uppercase tracking-widest mb-8">One-off visual execution.</p>
-          <div className="text-5xl font-serif font-black text-white mb-2">$450<span className="text-xl text-zinc-600 font-mono font-normal">/vid</span></div>
-          <div className="h-px w-full bg-zinc-900 my-8"></div>
-          <div className="space-y-4 mb-10 flex-grow font-mono">
-            {['1 High Quality Video', 'Professional Editing', 'Color Grading', 'Standard Turnaround'].map((item, i) => (
-              <div key={i} className="flex items-center gap-3 text-zinc-400">
-                <div className="w-4 h-4 rounded-full border border-zinc-700"></div>
-                <span className="uppercase tracking-widest text-xs font-medium">{item}</span>
-              </div>
-            ))}
+          {/* Pricing Category Switcher */}
+          <div className="flex justify-center mb-16">
+             <div className="inline-flex bg-zinc-900 p-1 border border-zinc-800 rounded-none">
+                <button
+                    onClick={() => setPricingCategory('music')}
+                    className={`px-6 py-3 font-mono text-xs font-bold uppercase tracking-widest transition-all ${pricingCategory === 'music' ? 'bg-[#00D2BE] text-black shadow-lg' : 'text-zinc-500 hover:text-white'}`}
+                >
+                    <div className="flex items-center gap-2"><Music size={14}/> Music Video</div>
+                </button>
+                <button
+                    onClick={() => setPricingCategory('corporate')}
+                    className={`px-6 py-3 font-mono text-xs font-bold uppercase tracking-widest transition-all ${pricingCategory === 'corporate' ? 'bg-[#00D2BE] text-black shadow-lg' : 'text-zinc-500 hover:text-white'}`}
+                >
+                    <div className="flex items-center gap-2"><Briefcase size={14}/> Corporate</div>
+                </button>
+                <button
+                    onClick={() => setPricingCategory('events')}
+                    className={`px-6 py-3 font-mono text-xs font-bold uppercase tracking-widest transition-all ${pricingCategory === 'events' ? 'bg-[#00D2BE] text-black shadow-lg' : 'text-zinc-500 hover:text-white'}`}
+                >
+                    <div className="flex items-center gap-2"><Calendar size={14}/> Special Events</div>
+                </button>
+             </div>
           </div>
-          <a href="https://linktr.ee/azwclothing" target="_blank" rel="noreferrer" className="w-full py-4 bg-zinc-900 hover:bg-zinc-800 text-white font-mono font-bold text-sm uppercase tracking-widest text-center transition-all border border-zinc-800">Book Single</a>
+
+          <div className="grid lg:grid-cols-2 gap-8 items-stretch">
+            {/* --- MUSIC VIDEO PRICING --- */}
+            {pricingCategory === 'music' && (
+                <>
+                    {/* THE ROLLOUT CARD */}
+                    <div className="bg-zinc-900 border border-zinc-800 p-10 hover:border-[#00D2BE] transition-all duration-300 flex flex-col group relative animate-in fade-in slide-in-from-bottom-4 duration-500">
+                    <div className="absolute top-0 right-0 bg-[#00D2BE] text-black text-xs font-mono font-bold px-4 py-2 uppercase tracking-widest">Recommended</div>
+                    <h3 className="text-3xl font-serif font-black text-white italic uppercase mb-2">The Rollout</h3>
+                    <p className="text-zinc-500 font-mono text-xs uppercase tracking-widest mb-8">Full monthly dominance.</p>
+                    <div className="text-5xl font-serif font-black text-white mb-2">$850<span className="text-xl text-zinc-600 font-mono font-normal">/mo</span></div>
+                    <div className="h-px w-full bg-zinc-800 my-8"></div>
+                    <div className="space-y-4 mb-10 flex-grow font-mono">
+                        {['3 Music Videos / Month', '2 Photoshoots', '2 Content Days', 'Strategy & Scheduling', 'RMRP Show Access'].map((item, i) => (
+                        <div key={i} className="flex items-center gap-3 text-zinc-300">
+                            <CheckCircle size={16} className="text-[#00D2BE]" />
+                            <span className="uppercase tracking-widest text-xs font-bold">{item}</span>
+                        </div>
+                        ))}
+                    </div>
+                    <a href="https://linktr.ee/azwclothing" target="_blank" rel="noreferrer" className="w-full py-4 bg-[#00D2BE] hover:bg-[#00b0a0] text-black font-mono font-bold text-sm uppercase tracking-widest text-center transition-all">Secure Your Slot</a>
+                    </div>
+
+                    {/* THE SINGLE CARD */}
+                    <div className="bg-zinc-950 border border-zinc-900 p-10 hover:border-zinc-700 transition-all duration-300 flex flex-col animate-in fade-in slide-in-from-bottom-4 duration-700">
+                    <h3 className="text-3xl font-serif font-black text-white italic uppercase mb-2">The Single</h3>
+                    <p className="text-zinc-500 font-mono text-xs uppercase tracking-widest mb-8">One-off visual execution.</p>
+                    <div className="text-5xl font-serif font-black text-white mb-2">$450<span className="text-xl text-zinc-600 font-mono font-normal">/vid</span></div>
+                    <div className="h-px w-full bg-zinc-900 my-8"></div>
+                    <div className="space-y-4 mb-10 flex-grow font-mono">
+                        {['1 High Quality Video', 'Professional Editing', 'Color Grading', 'Standard Turnaround'].map((item, i) => (
+                        <div key={i} className="flex items-center gap-3 text-zinc-400">
+                            <div className="w-4 h-4 rounded-full border border-zinc-700"></div>
+                            <span className="uppercase tracking-widest text-xs font-medium">{item}</span>
+                        </div>
+                        ))}
+                    </div>
+                    <a href="https://linktr.ee/azwclothing" target="_blank" rel="noreferrer" className="w-full py-4 bg-zinc-900 hover:bg-zinc-800 text-white font-mono font-bold text-sm uppercase tracking-widest text-center transition-all border border-zinc-800">Book Single</a>
+                    </div>
+                </>
+            )}
+
+            {/* --- CORPORATE PRICING --- */}
+            {pricingCategory === 'corporate' && (
+                <>
+                    {/* SMALL TEAM CARD */}
+                    <div className="bg-zinc-950 border border-zinc-900 p-10 hover:border-zinc-700 transition-all duration-300 flex flex-col animate-in fade-in slide-in-from-bottom-4 duration-500">
+                        <div className="flex items-center gap-2 mb-2 text-[#00D2BE]"><User size={20}/></div>
+                        <h3 className="text-3xl font-serif font-black text-white italic uppercase mb-2">Small Team</h3>
+                        <p className="text-zinc-500 font-mono text-xs uppercase tracking-widest mb-8">Professional Headshots & Group.</p>
+                        <div className="text-5xl font-serif font-black text-white mb-2"><span className="text-2xl align-top text-zinc-500">$</span>350<span className="text-xl text-zinc-600 font-mono font-normal">+</span></div>
+                        <div className="h-px w-full bg-zinc-900 my-8"></div>
+                        <div className="space-y-4 mb-10 flex-grow font-mono">
+                            {['1-5 Team Members', 'LinkedIn Ready Images', '4-10 Photos Per Person', '1 Group Photo', 'Basic Retouching'].map((item, i) => (
+                            <div key={i} className="flex items-center gap-3 text-zinc-400">
+                                <CheckCircle size={16} className="text-zinc-600" />
+                                <span className="uppercase tracking-widest text-xs font-medium">{item}</span>
+                            </div>
+                            ))}
+                        </div>
+                        <a href="https://linktr.ee/azwclothing" target="_blank" rel="noreferrer" className="w-full py-4 bg-zinc-900 hover:bg-zinc-800 text-white font-mono font-bold text-sm uppercase tracking-widest text-center transition-all border border-zinc-800">Book Small Team</a>
+                    </div>
+
+                    {/* LARGE GROUP CARD */}
+                    <div className="bg-zinc-900 border border-zinc-800 p-10 hover:border-[#00D2BE] transition-all duration-300 flex flex-col animate-in fade-in slide-in-from-bottom-4 duration-700">
+                        <div className="flex items-center gap-2 mb-2 text-[#00D2BE]"><Users size={20}/></div>
+                        <h3 className="text-3xl font-serif font-black text-white italic uppercase mb-2">Studio / Large</h3>
+                        <p className="text-zinc-500 font-mono text-xs uppercase tracking-widest mb-8">High-End External Studio Setup.</p>
+                        <div className="text-5xl font-serif font-black text-white mb-2"><span className="text-2xl align-top text-zinc-500">$</span>750<span className="text-xl text-zinc-600 font-mono font-normal">+</span></div>
+                        <div className="h-px w-full bg-zinc-800 my-8"></div>
+                        <div className="space-y-4 mb-10 flex-grow font-mono">
+                            {['Any Group Size', 'External Location', 'Professional Studio Lighting', 'Backdrop Setup Included', 'Advanced Retouching'].map((item, i) => (
+                            <div key={i} className="flex items-center gap-3 text-zinc-300">
+                                <CheckCircle size={16} className="text-[#00D2BE]" />
+                                <span className="uppercase tracking-widest text-xs font-bold">{item}</span>
+                            </div>
+                            ))}
+                        </div>
+                        <a href="https://linktr.ee/azwclothing" target="_blank" rel="noreferrer" className="w-full py-4 bg-[#00D2BE] hover:bg-[#00b0a0] text-black font-mono font-bold text-sm uppercase tracking-widest text-center transition-all">Get Quote</a>
+                    </div>
+                </>
+            )}
+
+            {/* --- SPECIAL EVENTS PRICING --- */}
+            {pricingCategory === 'events' && (
+                <>
+                    {/* STUDENT BUNDLE CARD */}
+                    <div className="bg-zinc-950 border border-zinc-900 p-10 hover:border-zinc-700 transition-all duration-300 flex flex-col animate-in fade-in slide-in-from-bottom-4 duration-500">
+                         <div className="flex items-center gap-2 mb-2 text-[#00D2BE]"><GraduationCap size={20}/></div>
+                        <h3 className="text-3xl font-serif font-black text-white italic uppercase mb-2">Student Bundle</h3>
+                        <p className="text-zinc-500 font-mono text-xs uppercase tracking-widest mb-8">Prom, Grad, Athletics, Homecoming.</p>
+                        <div className="text-5xl font-serif font-black text-white mb-2"><span className="text-2xl align-top text-zinc-500">$</span>250<span className="text-xl text-zinc-600 font-mono font-normal">+</span></div>
+                        <div className="h-px w-full bg-zinc-900 my-8"></div>
+                        <div className="space-y-4 mb-10 flex-grow font-mono">
+                            {['Assorted Portrait Styles', 'Unlimited Outfit Changes', 'Digital Delivery', 'Video Add-on Available', 'Fast Turnaround'].map((item, i) => (
+                            <div key={i} className="flex items-center gap-3 text-zinc-400">
+                                <CheckCircle size={16} className="text-zinc-600" />
+                                <span className="uppercase tracking-widest text-xs font-medium">{item}</span>
+                            </div>
+                            ))}
+                        </div>
+                        <a href="https://linktr.ee/azwclothing" target="_blank" rel="noreferrer" className="w-full py-4 bg-zinc-900 hover:bg-zinc-800 text-white font-mono font-bold text-sm uppercase tracking-widest text-center transition-all border border-zinc-800">Book Student</a>
+                    </div>
+
+                    {/* MAJOR EVENTS CARD */}
+                    <div className="bg-zinc-900 border border-zinc-800 p-10 hover:border-[#00D2BE] transition-all duration-300 flex flex-col animate-in fade-in slide-in-from-bottom-4 duration-700">
+                        <div className="flex items-center gap-2 mb-2 text-[#00D2BE]"><Camera size={20}/></div>
+                        <h3 className="text-3xl font-serif font-black text-white italic uppercase mb-2">Major Events</h3>
+                        <p className="text-zinc-500 font-mono text-xs uppercase tracking-widest mb-8">Weddings, Concerts, Reunions.</p>
+                        <div className="text-5xl font-serif font-black text-white mb-2"><span className="text-2xl align-top text-zinc-500">$</span>400<span className="text-zinc-600 font-mono text-2xl"> - </span><span className="text-2xl align-top text-zinc-500">$</span>600<span className="text-xl text-zinc-600 font-mono font-normal">+</span></div>
+                        <div className="h-px w-full bg-zinc-800 my-8"></div>
+                        <div className="space-y-4 mb-10 flex-grow font-mono">
+                            <div className="flex items-start gap-3 text-zinc-300">
+                                <CheckCircle size={16} className="text-[#00D2BE] mt-1 shrink-0" />
+                                <div>
+                                    <span className="uppercase tracking-widest text-xs font-bold block">Option A: $400+</span>
+                                    <span className="text-xs text-zinc-500">Full Day Photos + Short Clips</span>
+                                </div>
+                            </div>
+                            <div className="flex items-start gap-3 text-zinc-300">
+                                <CheckCircle size={16} className="text-[#00D2BE] mt-1 shrink-0" />
+                                <div>
+                                    <span className="uppercase tracking-widest text-xs font-bold block">Option B: $600+</span>
+                                    <span className="text-xs text-zinc-500">Full Day Dedicated Video Coverage</span>
+                                </div>
+                            </div>
+                            <div className="flex items-center gap-3 text-zinc-300">
+                                <CheckCircle size={16} className="text-[#00D2BE]" />
+                                <span className="uppercase tracking-widest text-xs font-bold">Recap Edit Included</span>
+                            </div>
+                        </div>
+                        <a href="https://linktr.ee/azwclothing" target="_blank" rel="noreferrer" className="w-full py-4 bg-[#00D2BE] hover:bg-[#00b0a0] text-black font-mono font-bold text-sm uppercase tracking-widest text-center transition-all">Check Availability</a>
+                    </div>
+                </>
+            )}
+
+          </div>
         </div>
       </div>
-    </div>
-  </div>
-);
+    );
+};
 
 // --- Admin Components ---
 
@@ -492,6 +674,7 @@ interface AdminDashboardProps {
 const AdminDashboard = ({ user, setView }: AdminDashboardProps) => {
   const [projects, setProjects] = useState<Project[]>([]);
   const [newProject, setNewProject] = useState<NewProjectState>({ clientName: '', projectName: '', date: '', income: '', expense: '', status: 'In Progress' });
+  const [deleteId, setDeleteId] = useState<string | null>(null);
 
   useEffect(() => {
     if (!user) return;
@@ -513,8 +696,15 @@ const AdminDashboard = ({ user, setView }: AdminDashboardProps) => {
     setNewProject({ clientName: '', projectName: '', date: '', income: '', expense: '', status: 'In Progress' });
   };
 
-  const handleDelete = async (id: string) => {
-    if (confirm("Delete?")) await deleteDoc(doc(db, 'artifacts', appId, 'users', user.uid, 'projects', id));
+  const confirmDelete = (id: string) => {
+    if (deleteId === id) {
+        deleteDoc(doc(db, 'artifacts', appId, 'users', user.uid, 'projects', id));
+        setDeleteId(null);
+    } else {
+        setDeleteId(id);
+        // Auto reset after 3 seconds
+        setTimeout(() => setDeleteId(null), 3000);
+    }
   };
 
   const totals = projects.reduce((acc, curr) => ({
@@ -530,11 +720,10 @@ const AdminDashboard = ({ user, setView }: AdminDashboardProps) => {
            <h1 className="text-4xl font-serif font-black italic uppercase">Dashboard</h1>
            <div className="flex items-center gap-4">
                <button onClick={() => setView('home')} className="text-xs font-mono text-zinc-400 hover:text-white flex items-center gap-2 uppercase tracking-widest"><Home size={14}/> Back to Site</button>
-               {/* Added Logout Button Here, using signOut import */}
                <button onClick={() => { signOut(auth); setView('login'); }} className="text-xs font-mono text-zinc-400 hover:text-red-500 flex items-center gap-2 uppercase tracking-widest"><LogOut size={14}/> Logout</button>
            </div>
         </div>
-        
+
         {/* Stats Overview */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12 font-mono">
             <div className="bg-zinc-900 p-6 border-l-4 border-[#00D2BE]">
@@ -569,12 +758,17 @@ const AdminDashboard = ({ user, setView }: AdminDashboardProps) => {
               </div>
               <div className="flex items-center gap-4">
                 <div className="text-[#00D2BE]">${p.income - p.expense}</div>
-                <button onClick={() => handleDelete(p.id)} className="text-red-500 hover:text-red-400"><Trash2 size={14}/></button>
+                <button
+                    onClick={() => confirmDelete(p.id)}
+                    className={`flex items-center gap-2 transition-all ${deleteId === p.id ? 'text-white bg-red-600 px-3 py-1 rounded' : 'text-red-500 hover:text-red-400'}`}
+                >
+                    {deleteId === p.id ? 'Confirm?' : <Trash2 size={14}/>}
+                </button>
               </div>
             </div>
           ))}
         </div>
-        
+
         <button onClick={() => exportToCSV(projects, 'finances.csv')} className="mt-8 text-zinc-500 hover:text-white text-xs font-mono uppercase tracking-widest">Download CSV</button>
       </div>
     </div>
@@ -590,22 +784,79 @@ export default function App() {
   const [isAdminMode, setAdminMode] = useState(false);
 
   useEffect(() => {
-    // @ts-ignore
-    if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) signInWithCustomToken(auth, __initial_auth_token).catch(console.warn);
-    onAuthStateChanged(auth, u => {
+    // Auth Init Logic for this Environment
+    // We check for a custom token from the environment first
+    const initAuth = async () => {
+        try {
+            if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+                await signInWithCustomToken(auth, __initial_auth_token);
+            } else {
+                // await signInAnonymously(auth);
+            }
+        } catch (e) {
+            console.warn("Auth init warning:", e);
+        }
+    };
+    initAuth();
+
+    const unsubscribe = onAuthStateChanged(auth, u => {
       setUser(u);
       if (!u && view === 'admin') setView('login');
     });
+
+    return () => unsubscribe();
   }, [view]);
 
   // If viewing admin or login, show that full screen
-  if (view === 'login') return <AdminLogin setView={setView} setAdminMode={setAdminMode} />;
-  if (view === 'admin' && user) return <AdminDashboard user={user} setView={setView} />;
+  if (view === 'login') return (
+    <div className="font-sans">
+        <style dangerouslySetInnerHTML={{__html: `
+            @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=Space+Mono:ital,wght@0,400;0,700;1,400;1,700&display=swap');
+        `}} />
+        <AdminLogin setView={setView} setAdminMode={setAdminMode} />
+    </div>
+  );
+
+  if (view === 'admin' && user) return (
+    <div className="font-sans">
+        <style dangerouslySetInnerHTML={{__html: `
+            @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=Space+Mono:ital,wght@0,400;0,700;1,400;1,700&display=swap');
+        `}} />
+        <AdminDashboard user={user} setView={setView} />
+    </div>
+  );
 
   // Otherwise show the landing page
   return (
     <div className="font-sans bg-zinc-950 min-h-screen text-zinc-200 selection:bg-[#00D2BE] selection:text-black">
-      <Navigation 
+      {/* Inject Fonts via Style Tag for Single File Portability */}
+      <style dangerouslySetInnerHTML={{__html: `
+        @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=Space+Mono:ital,wght@0,400;0,700;1,400;1,700&display=swap');
+        @keyframes blob {
+            0% { transform: translate(0px, 0px) scale(1); }
+            33% { transform: translate(30px, -50px) scale(1.1); }
+            66% { transform: translate(-20px, 20px) scale(0.9); }
+            100% { transform: translate(0px, 0px) scale(1); }
+        }
+        .animate-blob {
+            animation: blob 7s infinite;
+        }
+        .animation-delay-2000 {
+            animation-delay: 2s;
+        }
+        @keyframes marquee {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(-50%); }
+        }
+        .animate-marquee {
+            animation: marquee 20s linear infinite;
+        }
+        .bg-grain {
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='1'/%3E%3C/svg%3E");
+        }
+      `}} />
+
+      <Navigation
           isAdminMode={isAdminMode}
           setAdminMode={setAdminMode}
           isMobileMenuOpen={isMobileMenuOpen}
@@ -613,12 +864,12 @@ export default function App() {
           user={user}
           setView={setView}
       />
-      
+
       <Hero />
       <Marquee />
       <Portfolio />
       <Packages />
-      
+
       <footer className="bg-zinc-950 border-t border-zinc-900 py-12 px-4">
         <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center text-zinc-600 text-sm font-mono">
           <div className="flex items-center mb-4 md:mb-0">
