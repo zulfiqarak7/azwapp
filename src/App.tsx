@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { 
   Camera, 
   Briefcase, 
@@ -133,7 +133,17 @@ const exportToCSV = (data: Project[], fileName: string) => {
 
 // --- 4. Sub-Components ---
 
-const Navigation = ({ isMobileMenuOpen, setIsMobileMenuOpen, isAdminMode, setAdminMode, user, setView }: any) => (
+// Added explicit interface for Navigation Props
+interface NavigationProps {
+  isMobileMenuOpen: boolean;
+  setIsMobileMenuOpen: (isOpen: boolean) => void;
+  isAdminMode: boolean;
+  setAdminMode: (isMode: boolean) => void;
+  user: FirebaseUser | null;
+  setView: (view: string) => void;
+}
+
+const Navigation = ({ isMobileMenuOpen, setIsMobileMenuOpen, isAdminMode, setAdminMode, user, setView }: NavigationProps) => (
   <nav className="bg-zinc-950/80 backdrop-blur-md border-b border-zinc-800 sticky top-0 z-50">
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <div className="flex justify-between h-20 items-center">
@@ -209,10 +219,9 @@ const Navigation = ({ isMobileMenuOpen, setIsMobileMenuOpen, isAdminMode, setAdm
   </nav>
 );
 
-// Removed 'setView' from props as it was unused
+// FIXED: Removed unused 'setView' prop from Hero
 const Hero = () => (
   <div id="hero" className="relative h-screen flex items-center justify-center overflow-hidden bg-zinc-950">
-    {/* Background Effects */}
     <div className="absolute inset-0 bg-grain opacity-20 mix-blend-overlay z-[1] pointer-events-none"></div>
     <div className="absolute top-0 left-0 w-full h-full overflow-hidden z-0">
        <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-[#00D2BE]/20 rounded-full mix-blend-screen filter blur-[120px] opacity-40 animate-blob"></div>
@@ -239,7 +248,6 @@ const Hero = () => (
       </div>
     </div>
 
-    {/* Scroll Indicator */}
     <div className="absolute bottom-10 left-1/2 transform -translate-x-1/2 animate-bounce text-zinc-500">
       <ArrowDown size={32} />
     </div>
@@ -264,11 +272,9 @@ const Marquee = () => (
 );
 
 const Portfolio = () => {
-  // State for tabs
   const [activeTab, setActiveTab] = useState<'video' | 'photo' | 'design'>('video');
   const [currentSlide, setCurrentSlide] = useState(0);
 
-  // Video Data
   const videos = [
     { type: 'video', title: "Another Love Song", artist: "Wilmo", img: "https://img.youtube.com/vi/OVSVo2zTMM0/maxresdefault.jpg", link: "https://youtu.be/OVSVo2zTMM0" },
     { type: 'video', title: "HAHA!", artist: "Pa$ty", img: "https://img.youtube.com/vi/y9krRRjjLEA/maxresdefault.jpg", link: "https://youtu.be/y9krRRjjLEA" },
@@ -277,8 +283,7 @@ const Portfolio = () => {
     { type: 'video', title: "Stay", artist: "Nyce Widdit", img: "https://img.youtube.com/vi/NOTk0b_ieNU/maxresdefault.jpg", link: "https://youtu.be/NOTk0b_ieNU" }
   ];
 
-  // Define the list of images for the slideshow
-  // Add more paths here if you upload more images (e.g., "/image 6.jpg")
+  // Make sure these files exist in your /public folder
   const slideImages = [
     "/image 1.jpg",
     "/image 2.jpg",
@@ -287,7 +292,6 @@ const Portfolio = () => {
     "/image 5.jpg"
   ];
 
-  // Placeholder Design Data
   const designs = [
     { id: 1, src: 'https://images.unsplash.com/photo-1626785774573-4b7993143a26?q=80&w=800', title: 'Album Cover Art' },
     { id: 2, src: 'https://images.unsplash.com/photo-1611162617474-5b21e879e113?q=80&w=800', title: 'Event Flyer' },
@@ -309,45 +313,24 @@ const Portfolio = () => {
       <div className="max-w-7xl mx-auto">
         <h2 className="text-3xl font-black italic text-white mb-10 border-l-4 border-[#00D2BE] pl-4 uppercase">Selected Works</h2>
         
-        {/* TABS NAVIGATION */}
         <div className="flex flex-wrap gap-4 mb-8">
-            <button 
-                onClick={() => setActiveTab('video')}
-                className={`px-6 py-2 rounded-full font-bold uppercase tracking-wider text-sm transition-all ${activeTab === 'video' ? 'bg-[#00D2BE] text-black' : 'bg-zinc-900 text-zinc-400 hover:text-white'}`}
-            >
+            <button onClick={() => setActiveTab('video')} className={`px-6 py-2 rounded-full font-bold uppercase tracking-wider text-sm transition-all ${activeTab === 'video' ? 'bg-[#00D2BE] text-black' : 'bg-zinc-900 text-zinc-400 hover:text-white'}`}>
                 <div className="flex items-center gap-2"><Video size={16}/> Videos</div>
             </button>
-            <button 
-                onClick={() => setActiveTab('photo')}
-                className={`px-6 py-2 rounded-full font-bold uppercase tracking-wider text-sm transition-all ${activeTab === 'photo' ? 'bg-[#00D2BE] text-black' : 'bg-zinc-900 text-zinc-400 hover:text-white'}`}
-            >
+            <button onClick={() => setActiveTab('photo')} className={`px-6 py-2 rounded-full font-bold uppercase tracking-wider text-sm transition-all ${activeTab === 'photo' ? 'bg-[#00D2BE] text-black' : 'bg-zinc-900 text-zinc-400 hover:text-white'}`}>
                 <div className="flex items-center gap-2"><ImageIcon size={16}/> Photography</div>
             </button>
-            <button 
-                onClick={() => setActiveTab('design')}
-                className={`px-6 py-2 rounded-full font-bold uppercase tracking-wider text-sm transition-all ${activeTab === 'design' ? 'bg-[#00D2BE] text-black' : 'bg-zinc-900 text-zinc-400 hover:text-white'}`}
-            >
+            <button onClick={() => setActiveTab('design')} className={`px-6 py-2 rounded-full font-bold uppercase tracking-wider text-sm transition-all ${activeTab === 'design' ? 'bg-[#00D2BE] text-black' : 'bg-zinc-900 text-zinc-400 hover:text-white'}`}>
                 <div className="flex items-center gap-2"><Palette size={16}/> Design</div>
             </button>
         </div>
 
-        {/* --- VIDEO SECTION --- */}
         {activeTab === 'video' && (
             <>
                 <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
                 {videos.map((item, idx) => (
-                    <a 
-                    key={idx} 
-                    href={item.link} 
-                    target="_blank" 
-                    rel="noopener noreferrer"
-                    className="group relative aspect-video bg-zinc-900 border border-zinc-800 overflow-hidden cursor-pointer block hover:border-[#00D2BE] transition-colors"
-                    >
-                    <img 
-                        src={item.img} 
-                        alt={item.title}
-                        className="w-full h-full object-cover opacity-60 transition-all group-hover:opacity-40 group-hover:scale-105"
-                    />
+                    <a key={idx} href={item.link} target="_blank" rel="noopener noreferrer" className="group relative aspect-video bg-zinc-900 border border-zinc-800 overflow-hidden cursor-pointer block hover:border-[#00D2BE] transition-colors">
+                    <img src={item.img} alt={item.title} className="w-full h-full object-cover opacity-60 transition-all group-hover:opacity-40 group-hover:scale-105" />
                     <div className="absolute inset-0 flex items-center justify-center">
                         <PlayCircle className="w-16 h-16 text-white opacity-80 group-hover:opacity-100 group-hover:text-[#00D2BE] transition-all transform group-hover:scale-110" />
                     </div>
@@ -362,19 +345,13 @@ const Portfolio = () => {
                 ))}
                 </div>
                 <div className="flex justify-center">
-                    <a 
-                        href={playlistUrl} 
-                        target="_blank" 
-                        rel="noopener noreferrer"
-                        className="flex items-center gap-3 px-8 py-4 bg-zinc-900 hover:bg-zinc-800 text-white font-bold uppercase tracking-widest border border-zinc-800 hover:border-[#00D2BE] transition-all"
-                    >
+                    <a href={playlistUrl} target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 px-8 py-4 bg-zinc-900 hover:bg-zinc-800 text-white font-bold uppercase tracking-widest border border-zinc-800 hover:border-[#00D2BE] transition-all">
                         <List size={20} className="text-[#00D2BE]"/> View Full Playlist on YouTube
                     </a>
                 </div>
             </>
         )}
 
-        {/* --- PHOTOGRAPHY SECTION (SLIDESHOW) --- */}
         {activeTab === 'photo' && (
             <div className="relative w-full max-w-5xl mx-auto aspect-video bg-zinc-950 border border-zinc-800 overflow-hidden group">
                 <img 
@@ -382,45 +359,28 @@ const Portfolio = () => {
                     alt={`Slide ${currentSlide + 1}`} 
                     className="w-full h-full object-contain transition-opacity duration-500"
                     onError={(e) => {
-                        // Fallback if image not found
                         (e.target as HTMLElement).style.display = 'none'; 
-                        ((e.target as HTMLElement).nextSibling as HTMLElement).style.display = 'flex'; 
+                        if ((e.target as HTMLElement).nextSibling) ((e.target as HTMLElement).nextSibling as HTMLElement).style.display = 'flex'; 
                     }}
                 />
                 <div className="hidden absolute inset-0 items-center justify-center text-zinc-500 flex-col">
                     <ImageIcon size={48} className="mb-2"/>
                     <p>Image not found: {slideImages[currentSlide]}</p>
-                    <p className="text-xs">Make sure 'image {currentSlide + 1}.jpg' is in your public folder.</p>
                 </div>
-
-                {/* Navigation Buttons */}
-                <button 
-                    onClick={prevSlide}
-                    className="absolute left-4 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-[#00D2BE] text-white hover:text-black p-3 rounded-full transition-all backdrop-blur-sm"
-                >
+                <button onClick={prevSlide} className="absolute left-4 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-[#00D2BE] text-white hover:text-black p-3 rounded-full transition-all backdrop-blur-sm">
                     <ArrowLeft size={24} />
                 </button>
-                <button 
-                    onClick={nextSlide}
-                    className="absolute right-4 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-[#00D2BE] text-white hover:text-black p-3 rounded-full transition-all backdrop-blur-sm"
-                >
+                <button onClick={nextSlide} className="absolute right-4 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-[#00D2BE] text-white hover:text-black p-3 rounded-full transition-all backdrop-blur-sm">
                     <ArrowRight size={24} />
                 </button>
-
-                {/* Indicators */}
                 <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex gap-2">
                     {slideImages.map((_, idx) => (
-                        <button 
-                            key={idx}
-                            onClick={() => setCurrentSlide(idx)}
-                            className={`h-2 rounded-full transition-all ${currentSlide === idx ? 'bg-[#00D2BE] w-8' : 'bg-white/30 w-2 hover:bg-white/50'}`}
-                        />
+                        <button key={idx} onClick={() => setCurrentSlide(idx)} className={`h-2 rounded-full transition-all ${currentSlide === idx ? 'bg-[#00D2BE] w-8' : 'bg-white/30 w-2 hover:bg-white/50'}`} />
                     ))}
                 </div>
             </div>
         )}
 
-        {/* --- DESIGN SECTION --- */}
         {activeTab === 'design' && (
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {designs.map((design) => (
@@ -433,7 +393,6 @@ const Portfolio = () => {
                 ))}
             </div>
         )}
-
       </div>
     </div>
   );
@@ -441,30 +400,19 @@ const Portfolio = () => {
 
 const Packages = () => (
   <div id="packages" className="bg-zinc-950 py-32 px-4 relative overflow-hidden">
-    {/* Background Blob */}
     <div className="absolute right-0 top-1/2 transform -translate-y-1/2 w-[500px] h-[500px] bg-[#00D2BE]/5 rounded-full blur-[120px] pointer-events-none"></div>
-
     <div className="max-w-6xl mx-auto relative z-10">
       <div className="text-center mb-20">
         <h2 className="text-5xl md:text-6xl font-black text-white uppercase italic mb-6">2026 Season <span className="text-zinc-700 line-through decoration-[#00D2BE]">Pricing</span><br/> Offers</h2>
         <p className="text-zinc-400 max-w-2xl mx-auto">Lock in your visual strategy for the year. Limited slots available per month.</p>
       </div>
-
       <div className="grid lg:grid-cols-2 gap-8 items-stretch">
-        
-        {/* THE ROLLOUT CARD */}
         <div className="bg-zinc-900 border border-zinc-800 p-10 hover:border-[#00D2BE] transition-all duration-300 flex flex-col group relative">
-          <div className="absolute top-0 right-0 bg-[#00D2BE] text-black text-xs font-bold px-4 py-2 uppercase tracking-widest">
-            Recommended
-          </div>
-          
+          <div className="absolute top-0 right-0 bg-[#00D2BE] text-black text-xs font-bold px-4 py-2 uppercase tracking-widest">Recommended</div>
           <h3 className="text-4xl font-black text-white italic uppercase mb-2">The Rollout</h3>
           <p className="text-zinc-500 mb-8">Full monthly dominance.</p>
-          
           <div className="text-6xl font-black text-white mb-2">$850<span className="text-xl text-zinc-600 font-normal">/mo</span></div>
-          
           <div className="h-px w-full bg-zinc-800 my-8"></div>
-
           <div className="space-y-4 mb-10 flex-grow">
             {['3 Music Videos / Month', '2 Photoshoots', '2 Content Days', 'Strategy & Scheduling', 'RMRP Show Access'].map((item, i) => (
               <div key={i} className="flex items-center gap-3 text-zinc-300">
@@ -473,21 +421,13 @@ const Packages = () => (
               </div>
             ))}
           </div>
-
-          <a href="https://linktr.ee/azwclothing" target="_blank" rel="noreferrer" className="w-full py-5 bg-[#00D2BE] hover:bg-[#00b0a0] text-black font-black uppercase tracking-widest text-center transition-all">
-            Secure Your Slot
-          </a>
+          <a href="https://linktr.ee/azwclothing" target="_blank" rel="noreferrer" className="w-full py-5 bg-[#00D2BE] hover:bg-[#00b0a0] text-black font-black uppercase tracking-widest text-center transition-all">Secure Your Slot</a>
         </div>
-
-        {/* THE SINGLE CARD */}
         <div className="bg-zinc-950 border border-zinc-900 p-10 hover:border-zinc-700 transition-all duration-300 flex flex-col">
           <h3 className="text-4xl font-black text-white italic uppercase mb-2">The Single</h3>
           <p className="text-zinc-500 mb-8">One-off visual execution.</p>
-          
           <div className="text-6xl font-black text-white mb-2">$450<span className="text-xl text-zinc-600 font-normal">/vid</span></div>
-          
           <div className="h-px w-full bg-zinc-900 my-8"></div>
-
           <div className="space-y-4 mb-10 flex-grow">
             {['1 High Quality Video', 'Professional Editing', 'Color Grading', 'Standard Turnaround'].map((item, i) => (
               <div key={i} className="flex items-center gap-3 text-zinc-400">
@@ -496,20 +436,22 @@ const Packages = () => (
               </div>
             ))}
           </div>
-
-          <a href="https://linktr.ee/azwclothing" target="_blank" rel="noreferrer" className="w-full py-5 bg-zinc-900 hover:bg-zinc-800 text-white font-black uppercase tracking-widest text-center transition-all border border-zinc-800">
-            Book Single
-          </a>
+          <a href="https://linktr.ee/azwclothing" target="_blank" rel="noreferrer" className="w-full py-5 bg-zinc-900 hover:bg-zinc-800 text-white font-black uppercase tracking-widest text-center transition-all border border-zinc-800">Book Single</a>
         </div>
-
       </div>
     </div>
   </div>
 );
 
-// --- Admin Components (Hidden by default) ---
+// --- Admin Components ---
 
-const AdminLogin = ({ setView, setAdminMode }: any) => {
+// FIXED: Added explicit interface for AdminLogin props
+interface AdminLoginProps {
+  setView: (view: string) => void;
+  setAdminMode: (mode: boolean) => void;
+}
+
+const AdminLogin = ({ setView, setAdminMode }: AdminLoginProps) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
@@ -541,7 +483,13 @@ const AdminLogin = ({ setView, setAdminMode }: any) => {
   );
 };
 
-const AdminDashboard = ({ user, setView }: any) => {
+// FIXED: Added explicit interface for AdminDashboard props
+interface AdminDashboardProps {
+  user: FirebaseUser;
+  setView: (view: string) => void;
+}
+
+const AdminDashboard = ({ user, setView }: AdminDashboardProps) => {
   const [projects, setProjects] = useState<Project[]>([]);
   const [newProject, setNewProject] = useState<NewProjectState>({ clientName: '', projectName: '', date: '', income: '', expense: '', status: 'In Progress' });
 
@@ -569,6 +517,14 @@ const AdminDashboard = ({ user, setView }: any) => {
     if (confirm("Delete?")) await deleteDoc(doc(db, 'artifacts', appId, 'users', user.uid, 'projects', id));
   };
 
+  const totals = useMemo(() => {
+    return projects.reduce((acc, curr) => ({
+      income: acc.income + (curr.income || 0),
+      expense: acc.expense + (curr.expense || 0),
+      net: acc.net + ((curr.income || 0) - (curr.expense || 0))
+    }), { income: 0, expense: 0, net: 0 });
+  }, [projects]);
+
   return (
     <div className="min-h-screen bg-black text-white p-8">
       <div className="max-w-6xl mx-auto">
@@ -577,7 +533,22 @@ const AdminDashboard = ({ user, setView }: any) => {
            <button onClick={() => setView('home')} className="text-sm text-zinc-400 hover:text-white flex items-center gap-2"><Home size={16}/> Back to Site</button>
         </div>
         
-        {/* Simple Add Form */}
+        {/* Stats Overview */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
+            <div className="bg-zinc-900 p-6 border-l-4 border-[#00D2BE]">
+                <div className="text-zinc-500 text-xs uppercase tracking-widest mb-1">Total Revenue</div>
+                <div className="text-3xl font-black text-white">${totals.income.toLocaleString()}</div>
+            </div>
+            <div className="bg-zinc-900 p-6 border-l-4 border-red-900">
+                <div className="text-zinc-500 text-xs uppercase tracking-widest mb-1">Total Expenses</div>
+                <div className="text-3xl font-black text-red-500">${totals.expense.toLocaleString()}</div>
+            </div>
+            <div className="bg-zinc-900 p-6 border-l-4 border-emerald-500">
+                <div className="text-zinc-500 text-xs uppercase tracking-widest mb-1">Net Profit</div>
+                <div className={`text-3xl font-black ${totals.net >= 0 ? 'text-emerald-500' : 'text-red-500'}`}>${totals.net.toLocaleString()}</div>
+            </div>
+        </div>
+
         <form onSubmit={handleAdd} className="grid grid-cols-2 md:grid-cols-6 gap-4 mb-12 bg-zinc-900 p-6">
           <input placeholder="Client" className="bg-black p-2 text-white border border-zinc-800" value={newProject.clientName} onChange={e => setNewProject({...newProject, clientName: e.target.value})} />
           <input placeholder="Project" className="bg-black p-2 text-white border border-zinc-800" value={newProject.projectName} onChange={e => setNewProject({...newProject, projectName: e.target.value})} />
@@ -587,7 +558,6 @@ const AdminDashboard = ({ user, setView }: any) => {
           <button className="bg-[#00D2BE] text-black font-bold uppercase">Add</button>
         </form>
 
-        {/* List */}
         <div className="space-y-2">
           {projects.map(p => (
             <div key={p.id} className="flex justify-between items-center bg-zinc-900 p-4 border border-zinc-800">
@@ -642,7 +612,7 @@ export default function App() {
           setView={setView}
       />
       
-      <Hero setView={setView} />
+      <Hero />
       <Marquee />
       <Portfolio />
       <Packages />
