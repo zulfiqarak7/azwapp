@@ -32,6 +32,7 @@ import {
   onAuthStateChanged,
   signInWithCustomToken,
   signOut,
+  signInAnonymously
 } from "firebase/auth";
 import type { User as FirebaseUser } from "firebase/auth";
 import {
@@ -67,7 +68,8 @@ interface NewProjectState {
   projectName: string;
   date: string;
   income: string;
-  expense: string;  status: string;
+  expense: string;
+  status: string;
 }
 
 // --- 2. Firebase Configuration ---
@@ -142,69 +144,83 @@ interface NavigationProps {
   setView: (view: string) => void;
 }
 
-const Navigation = ({ isMobileMenuOpen, setIsMobileMenuOpen, isAdminMode, setAdminMode, user, setView }: NavigationProps) => (
-  <nav className="bg-zinc-950/80 backdrop-blur-md border-b border-zinc-800 sticky top-0 z-50">
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-      <div className="flex justify-between h-20 items-center">
-        {/* LOGO */}
-        <div className="flex items-center cursor-pointer" onClick={() => scrollToSection('hero')}>
-           <span className="text-xl font-bold text-white tracking-tighter italic" style={{fontFamily: 'serif'}}>
-            DIRECTED BY <span className="text-[#00D2BE]">AZW</span>
-          </span>
-        </div>
+const Navigation = ({ isMobileMenuOpen, setIsMobileMenuOpen, isAdminMode, setAdminMode, user, setView }: NavigationProps) => {
+  // We use local state to track if the logo image failed to load
+  const [logoError, setLogoError] = useState(false);
 
-        {/* Desktop Menu */}
-        {!isAdminMode && (
-          <div className="hidden md:flex items-center space-x-8 font-mono">
-            <button onClick={() => scrollToSection('hero')} className="text-sm font-medium text-zinc-400 hover:text-[#00D2BE] transition-colors uppercase tracking-widest">Home</button>
-            <button onClick={() => scrollToSection('portfolio')} className="text-sm font-medium text-zinc-400 hover:text-[#00D2BE] transition-colors uppercase tracking-widest">Work</button>
-            <button onClick={() => scrollToSection('packages')} className="text-sm font-medium text-zinc-400 hover:text-[#00D2BE] transition-colors uppercase tracking-widest">Packages</button>
-            <a href="https://linktr.ee/azwclothing" target="_blank" rel="noreferrer" className="px-6 py-2 bg-[#00D2BE] hover:bg-[#00b0a0] text-black font-bold text-xs uppercase tracking-widest rounded-none transition-all">
-              Book Now
-            </a>
-
-            {/* Dashboard Link */}
-            {user && (
-                <button onClick={() => setView('admin')} className="flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-zinc-400 hover:text-white border border-zinc-700 hover:border-zinc-500 px-4 py-2 transition-all">
-                    <LayoutDashboard size={14}/> Dashboard
-                </button>
+  return (
+    <nav className="bg-zinc-950/80 backdrop-blur-md border-b border-zinc-800 sticky top-0 z-50">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex justify-between h-20 items-center">
+          {/* LOGO SECTION */}
+          <div className="flex items-center cursor-pointer" onClick={() => scrollToSection('hero')}>
+            {!logoError ? (
+                <img
+                    src="/logo.png"
+                    alt="Directed By AZW"
+                    className="h-16 w-auto object-contain hover:opacity-90 transition-opacity"
+                    onError={() => setLogoError(true)}
+                />
+            ) : (
+                <span className="text-xl font-bold text-white tracking-tighter italic" style={{fontFamily: 'serif'}}>
+                    DIRECTED BY <span className="text-[#00D2BE]">AZW</span>
+                </span>
             )}
           </div>
-        )}
 
-        {/* Admin Logout */}
-        {isAdminMode && (
-           <button onClick={() => setAdminMode(false)} className="px-4 py-2 text-xs font-mono font-bold uppercase tracking-widest bg-zinc-900 text-red-500 border border-red-500/30 hover:bg-zinc-800 transition-all flex items-center gap-2">
-              <LogOut size={14} /> Exit Admin
-           </button>
-        )}
+          {/* Desktop Menu */}
+          {!isAdminMode && (
+            <div className="hidden md:flex items-center space-x-8 font-mono">
+              <button onClick={() => scrollToSection('hero')} className="text-sm font-medium text-zinc-400 hover:text-[#00D2BE] transition-colors uppercase tracking-widest">Home</button>
+              <button onClick={() => scrollToSection('portfolio')} className="text-sm font-medium text-zinc-400 hover:text-[#00D2BE] transition-colors uppercase tracking-widest">Work</button>
+              <button onClick={() => scrollToSection('packages')} className="text-sm font-medium text-zinc-400 hover:text-[#00D2BE] transition-colors uppercase tracking-widest">Packages</button>
+              <a href="https://linktr.ee/azwclothing" target="_blank" rel="noreferrer" className="px-6 py-2 bg-[#00D2BE] hover:bg-[#00b0a0] text-black font-bold text-xs uppercase tracking-widest rounded-none transition-all">
+                Book Now
+              </a>
 
-        {/* Mobile menu button */}
-        {!isAdminMode && (
-          <div className="md:hidden flex items-center">
-            <button onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)} className="text-zinc-400 hover:text-white">
-              {isMobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
-            </button>
-          </div>
-        )}
-      </div>
-    </div>
+              {/* Dashboard Link */}
+              {user && (
+                  <button onClick={() => setView('admin')} className="flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-zinc-400 hover:text-white border border-zinc-700 hover:border-zinc-500 px-4 py-2 transition-all">
+                      <LayoutDashboard size={14}/> Dashboard
+                  </button>
+              )}
+            </div>
+          )}
 
-    {/* Mobile Menu Dropdown */}
-    {isMobileMenuOpen && !isAdminMode && (
-      <div className="md:hidden bg-zinc-950 border-b border-zinc-900 font-mono">
-        <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3">
-          <button onClick={() => { scrollToSection('hero'); setIsMobileMenuOpen(false); }} className="block w-full text-left px-3 py-4 text-sm font-bold uppercase text-white border-b border-zinc-900">Home</button>
-          <button onClick={() => { scrollToSection('portfolio'); setIsMobileMenuOpen(false); }} className="block w-full text-left px-3 py-4 text-sm font-bold uppercase text-white border-b border-zinc-900">Work</button>
-          <button onClick={() => { scrollToSection('packages'); setIsMobileMenuOpen(false); }} className="block w-full text-left px-3 py-4 text-sm font-bold uppercase text-white">Packages</button>
-          {user && (
-             <button onClick={() => { setView('admin'); setIsMobileMenuOpen(false); }} className="block w-full text-left px-3 py-4 text-sm font-bold uppercase text-[#00D2BE]">Dashboard</button>
+          {/* Admin Logout */}
+          {isAdminMode && (
+             <button onClick={() => setAdminMode(false)} className="px-4 py-2 text-xs font-mono font-bold uppercase tracking-widest bg-zinc-900 text-red-500 border border-red-500/30 hover:bg-zinc-800 transition-all flex items-center gap-2">
+                <LogOut size={14} /> Exit Admin
+             </button>
+          )}
+
+          {/* Mobile menu button */}
+          {!isAdminMode && (
+            <div className="md:hidden flex items-center">
+              <button onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)} className="text-zinc-400 hover:text-white">
+                {isMobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
+              </button>
+            </div>
           )}
         </div>
       </div>
-    )}
-  </nav>
-);
+
+      {/* Mobile Menu Dropdown */}
+      {isMobileMenuOpen && !isAdminMode && (
+        <div className="md:hidden bg-zinc-950 border-b border-zinc-900 font-mono">
+          <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3">
+            <button onClick={() => { scrollToSection('hero'); setIsMobileMenuOpen(false); }} className="block w-full text-left px-3 py-4 text-sm font-bold uppercase text-white border-b border-zinc-900">Home</button>
+            <button onClick={() => { scrollToSection('portfolio'); setIsMobileMenuOpen(false); }} className="block w-full text-left px-3 py-4 text-sm font-bold uppercase text-white border-b border-zinc-900">Work</button>
+            <button onClick={() => { scrollToSection('packages'); setIsMobileMenuOpen(false); }} className="block w-full text-left px-3 py-4 text-sm font-bold uppercase text-white">Packages</button>
+            {user && (
+               <button onClick={() => { setView('admin'); setIsMobileMenuOpen(false); }} className="block w-full text-left px-3 py-4 text-sm font-bold uppercase text-[#00D2BE]">Dashboard</button>
+            )}
+          </div>
+        </div>
+      )}
+    </nav>
+  );
+};
 
 const Hero = () => (
   <div id="hero" className="relative h-screen flex items-center justify-center overflow-hidden bg-zinc-950">
