@@ -22,7 +22,6 @@ import { initializeApp } from "firebase/app";
 import { 
   getAuth, 
   signInWithEmailAndPassword, 
-  signOut, 
   onAuthStateChanged,
   signInWithCustomToken
 } from "firebase/auth";
