@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { 
   Camera, 
   Briefcase, 
@@ -15,7 +15,13 @@ import {
   Home,
   PlayCircle,
   ExternalLink,
-  List
+  List,
+  Image as ImageIcon,
+  Palette,
+  ArrowDown,
+  LayoutDashboard,
+  ArrowLeft,  // Added ArrowLeft
+  ArrowRight  // Added ArrowRight
 } from 'lucide-react';
 import { initializeApp } from "firebase/app";
 import { 
@@ -39,8 +45,7 @@ import {
   serverTimestamp 
 } from "firebase/firestore";
 
-// --- 0. Global Variable Declarations (Fixes TS2304/TS2552) ---
-// This tells TypeScript these variables might exist globally (in StackBlitz)
+// --- 0. Global Variable Declarations ---
 declare const __firebase_config: string | undefined;
 declare const __app_id: string | undefined;
 declare const __initial_auth_token: string | undefined;
@@ -76,7 +81,6 @@ const localConfig = {
   measurementId: "G-E2ZG8V5H72"
 };
 
-// Robust check for environment variables
 const firebaseConfig = (typeof __firebase_config !== 'undefined' && __firebase_config)
   ? JSON.parse(__firebase_config)
   : localConfig;
@@ -86,7 +90,14 @@ const auth = getAuth(app);
 const db = getFirestore(app);
 const appId = (typeof __app_id !== 'undefined' && __app_id) ? __app_id : 'azw-landing';
 
-// --- 3. CSV Export Utility ---
+// --- 3. Utilities ---
+const scrollToSection = (id: string) => {
+  const element = document.getElementById(id);
+  if (element) {
+    element.scrollIntoView({ behavior: 'smooth' });
+  }
+};
+
 const exportToCSV = (data: Project[], fileName: string) => {
   if (!data || !data.length) {
     alert("No data to export");
@@ -122,20 +133,12 @@ const exportToCSV = (data: Project[], fileName: string) => {
 
 // --- 4. Sub-Components ---
 
-interface NavigationProps {
-  setView: (view: string) => void;
-  user: FirebaseUser | null;
-  currentView: string;
-  isMobileMenuOpen: boolean;
-  setIsMobileMenuOpen: (isOpen: boolean) => void;
-}
-
-const Navigation = ({ setView, user, currentView, isMobileMenuOpen, setIsMobileMenuOpen }: NavigationProps) => (
-  <nav className="bg-zinc-950 border-b border-zinc-900 sticky top-0 z-50">
+const Navigation = ({ isMobileMenuOpen, setIsMobileMenuOpen, isAdminMode, setAdminMode, user, setView }: any) => (
+  <nav className="bg-zinc-950/80 backdrop-blur-md border-b border-zinc-800 sticky top-0 z-50">
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <div className="flex justify-between h-20 items-center">
         {/* LOGO */}
-        <div className="flex items-center cursor-pointer" onClick={() => setView('home')}>
+        <div className="flex items-center cursor-pointer" onClick={() => scrollToSection('hero')}>
           <img 
             src="/logo.png" 
             alt="Directed By AZW" 
@@ -149,46 +152,57 @@ const Navigation = ({ setView, user, currentView, isMobileMenuOpen, setIsMobileM
             }}
           />
           <span className="hidden ml-2 text-xl font-bold text-white tracking-tighter italic" style={{fontFamily: 'serif'}}>
-            DIRECTED BY <span className="text-red-600">AZW</span>
+            DIRECTED BY <span className="text-[#00D2BE]">AZW</span>
           </span>
         </div>
         
         {/* Desktop Menu */}
-        <div className="hidden md:flex items-center space-x-8">
-          <button onClick={() => setView('home')} className={`text-sm font-medium transition-colors ${currentView === 'home' ? 'text-red-600' : 'text-zinc-400 hover:text-white'}`}>Home</button>
-          <button onClick={() => setView('packages')} className={`text-sm font-medium transition-colors ${currentView === 'packages' ? 'text-red-600' : 'text-zinc-400 hover:text-white'}`}>2026 Offers</button>
-          <button onClick={() => setView('portfolio')} className={`text-sm font-medium transition-colors ${currentView === 'portfolio' ? 'text-red-600' : 'text-zinc-400 hover:text-white'}`}>Portfolio</button>
-          
-          {user ? (
-             <button onClick={() => setView('admin')} className={`px-4 py-2 rounded-md text-sm font-medium bg-zinc-900 text-red-500 border border-red-900/30 hover:bg-zinc-800 transition-all flex items-center gap-2`}>
-                <Briefcase size={16} /> Zak's Dashboard
-             </button>
-          ) : (
-             <button onClick={() => setView('login')} className="text-sm font-medium text-zinc-500 hover:text-white flex items-center gap-1">
-               <Lock size={14} /> Admin
-             </button>
-          )}
-        </div>
+        {!isAdminMode && (
+          <div className="hidden md:flex items-center space-x-8">
+            <button onClick={() => scrollToSection('hero')} className="text-sm font-medium text-zinc-400 hover:text-[#00D2BE] transition-colors">Home</button>
+            <button onClick={() => scrollToSection('portfolio')} className="text-sm font-medium text-zinc-400 hover:text-[#00D2BE] transition-colors">Work</button>
+            <button onClick={() => scrollToSection('packages')} className="text-sm font-medium text-zinc-400 hover:text-[#00D2BE] transition-colors">Packages</button>
+            <a href="https://linktr.ee/azwclothing" target="_blank" rel="noreferrer" className="px-6 py-2 bg-[#00D2BE] hover:bg-[#00b0a0] text-black font-bold text-sm rounded-full transition-all">
+              Book Now
+            </a>
+            
+            {/* Dashboard Link (Visible only if logged in) */}
+            {user && (
+                <button onClick={() => setView('admin')} className="flex items-center gap-2 text-sm font-medium text-zinc-400 hover:text-white border border-zinc-700 hover:border-zinc-500 px-4 py-2 rounded-full transition-all">
+                    <LayoutDashboard size={16}/> Dashboard
+                </button>
+            )}
+          </div>
+        )}
+
+        {/* Admin Logout */}
+        {isAdminMode && (
+           <button onClick={() => setAdminMode(false)} className="px-4 py-2 rounded-md text-sm font-medium bg-zinc-900 text-red-500 border border-red-500/30 hover:bg-zinc-800 transition-all flex items-center gap-2">
+              <LogOut size={16} /> Exit Admin
+           </button>
+        )}
 
         {/* Mobile menu button */}
-        <div className="md:hidden flex items-center">
-          <button onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)} className="text-zinc-400 hover:text-white">
-            {isMobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
-          </button>
-        </div>
+        {!isAdminMode && (
+          <div className="md:hidden flex items-center">
+            <button onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)} className="text-zinc-400 hover:text-white">
+              {isMobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
+            </button>
+          </div>
+        )}
       </div>
     </div>
 
     {/* Mobile Menu Dropdown */}
-    {isMobileMenuOpen && (
+    {isMobileMenuOpen && !isAdminMode && (
       <div className="md:hidden bg-zinc-950 border-b border-zinc-900">
         <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3">
-          <button onClick={() => { setView('home'); setIsMobileMenuOpen(false); }} className="block w-full text-left px-3 py-2 text-base font-medium text-zinc-300 hover:text-white hover:bg-zinc-900 rounded-md">Home</button>
-          <button onClick={() => { setView('packages'); setIsMobileMenuOpen(false); }} className="block w-full text-left px-3 py-2 text-base font-medium text-zinc-300 hover:text-white hover:bg-zinc-900 rounded-md">2026 Offers</button>
-          <button onClick={() => { setView('portfolio'); setIsMobileMenuOpen(false); }} className="block w-full text-left px-3 py-2 text-base font-medium text-zinc-300 hover:text-white hover:bg-zinc-900 rounded-md">Portfolio</button>
-          <button onClick={() => { setView(user ? 'admin' : 'login'); setIsMobileMenuOpen(false); }} className="block w-full text-left px-3 py-2 text-base font-medium text-red-500 hover:bg-zinc-900 rounded-md">
-            {user ? 'Dashboard' : 'Admin Login'}
-          </button>
+          <button onClick={() => { scrollToSection('hero'); setIsMobileMenuOpen(false); }} className="block w-full text-left px-3 py-4 text-lg font-medium text-white border-b border-zinc-900">Home</button>
+          <button onClick={() => { scrollToSection('portfolio'); setIsMobileMenuOpen(false); }} className="block w-full text-left px-3 py-4 text-lg font-medium text-white border-b border-zinc-900">Work</button>
+          <button onClick={() => { scrollToSection('packages'); setIsMobileMenuOpen(false); }} className="block w-full text-left px-3 py-4 text-lg font-medium text-white">Packages</button>
+          {user && (
+             <button onClick={() => { setView('admin'); setIsMobileMenuOpen(false); }} className="block w-full text-left px-3 py-4 text-lg font-medium text-[#00D2BE]">Dashboard</button>
+          )}
         </div>
       </div>
     )}
@@ -196,254 +210,305 @@ const Navigation = ({ setView, user, currentView, isMobileMenuOpen, setIsMobileM
 );
 
 const Hero = ({ setView }: { setView: (view: string) => void }) => (
-  <div className="relative overflow-hidden bg-zinc-950 min-h-[calc(100vh-80px)] flex items-center justify-center">
-    
-    {/* 1. Heavy Grain Overlay (Fixed on top) */}
-    <div className="absolute inset-0 z-[1] pointer-events-none bg-grain opacity-20 mix-blend-overlay"></div>
-
-    {/* 2. Moving Gradients */}
+  <div id="hero" className="relative h-screen flex items-center justify-center overflow-hidden bg-zinc-950">
+    {/* Background Effects */}
+    <div className="absolute inset-0 bg-grain opacity-20 mix-blend-overlay z-[1] pointer-events-none"></div>
     <div className="absolute top-0 left-0 w-full h-full overflow-hidden z-0">
-       <div className="absolute top-0 left-1/4 w-96 h-96 bg-red-600/30 rounded-full mix-blend-screen filter blur-[100px] opacity-50 animate-blob"></div>
-       <div className="absolute top-0 right-1/4 w-96 h-96 bg-red-900/30 rounded-full mix-blend-screen filter blur-[100px] opacity-50 animate-blob animation-delay-2000"></div>
-       <div className="absolute -bottom-32 left-1/3 w-96 h-96 bg-zinc-800/30 rounded-full mix-blend-screen filter blur-[100px] opacity-50 animate-blob animation-delay-4000"></div>
+       <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-[#00D2BE]/20 rounded-full mix-blend-screen filter blur-[120px] opacity-40 animate-blob"></div>
+       <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-emerald-600/10 rounded-full mix-blend-screen filter blur-[120px] opacity-40 animate-blob animation-delay-2000"></div>
     </div>
 
-   <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-      {/* UPDATED HEADLINE STYLE */}
-      <h1 className="text-6xl md:text-8xl font-black text-white tracking-tighter mb-8 uppercase italic">
-        i make cool stuff.<br/>
-        <span className="text-red-600">AZW</span>
+    <div className="relative z-10 text-center px-4 max-w-5xl mx-auto">
+      <h1 className="text-7xl md:text-9xl font-black text-white tracking-tighter uppercase italic leading-[0.9] mb-6">
+        VISION <br/>
+        <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#00D2BE] to-emerald-600">& SOUND</span>
       </h1>
-      <p className="mt-4 max-w-2xl mx-auto text-xl text-zinc-400 mb-10 font-light">
-        Strategy, Content, and Cinema for 2026.
+      <div className="w-24 h-1 bg-[#00D2BE] mx-auto mb-8"></div>
+      <p className="text-xl md:text-2xl text-zinc-400 font-light tracking-widest uppercase mb-12">
+        Strategy • Content • Cinema
       </p>
-      <div className="flex justify-center gap-4">
-        <button onClick={() => setView('packages')} className="px-8 py-4 bg-red-600 hover:bg-red-700 text-white font-bold text-lg rounded-none transition-all transform hover:scale-105 shadow-lg shadow-red-900/20 uppercase tracking-widest">
-          View 2026 Offers
+      
+      <div className="flex flex-col md:flex-row gap-6 justify-center">
+        <button onClick={() => scrollToSection('portfolio')} className="px-10 py-4 bg-transparent border-2 border-white hover:bg-white hover:text-black text-white font-bold text-lg uppercase tracking-widest transition-all">
+          Explore Work
         </button>
+        <button onClick={() => scrollToSection('packages')} className="px-10 py-4 bg-[#00D2BE] hover:bg-[#00b0a0] text-black font-bold text-lg uppercase tracking-widest transition-all shadow-[0_0_20px_rgba(0,210,190,0.3)]">
+          2026 Season
+        </button>
+      </div>
+    </div>
+
+    {/* Scroll Indicator */}
+    <div className="absolute bottom-10 left-1/2 transform -translate-x-1/2 animate-bounce text-zinc-500">
+      <ArrowDown size={32} />
+    </div>
+  </div>
+);
+
+const Marquee = () => (
+  <div className="bg-[#00D2BE] overflow-hidden py-4">
+    <div className="whitespace-nowrap animate-marquee flex gap-12 text-black font-black italic uppercase tracking-widest text-2xl">
+      <span>Music Videos</span> <span>•</span>
+      <span>Creative Direction</span> <span>•</span>
+      <span>Photography</span> <span>•</span>
+      <span>Album Art</span> <span>•</span>
+      <span>Brand Strategy</span> <span>•</span>
+      <span>Social Content</span> <span>•</span>
+      <span>Music Videos</span> <span>•</span>
+      <span>Creative Direction</span> <span>•</span>
+      <span>Photography</span> <span>•</span>
+      <span>Album Art</span> <span>•</span>
+    </div>
+  </div>
+);
+
+const Portfolio = () => {
+  // State for tabs
+  const [activeTab, setActiveTab] = useState<'video' | 'photo' | 'design'>('video');
+  const [currentSlide, setCurrentSlide] = useState(0);
+
+  // Video Data
+  const videos = [
+    { type: 'video', title: "Another Love Song", artist: "Wilmo", img: "https://img.youtube.com/vi/OVSVo2zTMM0/maxresdefault.jpg", link: "https://youtu.be/OVSVo2zTMM0" },
+    { type: 'video', title: "HAHA!", artist: "Pa$ty", img: "https://img.youtube.com/vi/y9krRRjjLEA/maxresdefault.jpg", link: "https://youtu.be/y9krRRjjLEA" },
+    { type: 'video', title: "Back Again", artist: "Zayyfrm050", img: "https://img.youtube.com/vi/oTqo4FKAEcc/maxresdefault.jpg", link: "https://youtu.be/oTqo4FKAEcc" },
+    { type: 'video', title: "Everyday", artist: "Pa$ty", img: "https://img.youtube.com/vi/581MvmIE9to/maxresdefault.jpg", link: "https://youtu.be/581MvmIE9to" },
+    { type: 'video', title: "Stay", artist: "Nyce Widdit", img: "https://img.youtube.com/vi/NOTk0b_ieNU/maxresdefault.jpg", link: "https://youtu.be/NOTk0b_ieNU" }
+  ];
+
+  // Define the list of images for the slideshow
+  // Add more paths here if you upload more images (e.g., "/image 6.jpg")
+  const slideImages = [
+    "/image 1.jpg",
+    "/image 2.jpg",
+    "/image 3.jpg",
+    "/image 4.jpg",
+    "/image 5.jpg"
+  ];
+
+  // Placeholder Design Data
+  const designs = [
+    { id: 1, src: 'https://images.unsplash.com/photo-1626785774573-4b7993143a26?q=80&w=800', title: 'Album Cover Art' },
+    { id: 2, src: 'https://images.unsplash.com/photo-1611162617474-5b21e879e113?q=80&w=800', title: 'Event Flyer' },
+    { id: 3, src: 'https://images.unsplash.com/photo-1561070791-2526d30994b5?q=80&w=800', title: 'Logo Design' },
+  ];
+
+  const playlistUrl = "https://www.youtube.com/playlist?list=PLN86zTGXdQcoO-nbBlx3mSgAUTzYbFdqW";
+
+  const nextSlide = () => {
+    setCurrentSlide((prev) => (prev === slideImages.length - 1 ? 0 : prev + 1));
+  };
+
+  const prevSlide = () => {
+    setCurrentSlide((prev) => (prev === 0 ? slideImages.length - 1 : prev - 1));
+  };
+
+  return (
+    <div id="portfolio" className="bg-zinc-900 py-32 px-4">
+      <div className="max-w-7xl mx-auto">
+        <h2 className="text-3xl font-black italic text-white mb-10 border-l-4 border-[#00D2BE] pl-4 uppercase">Selected Works</h2>
+        
+        {/* TABS NAVIGATION */}
+        <div className="flex flex-wrap gap-4 mb-8">
+            <button 
+                onClick={() => setActiveTab('video')}
+                className={`px-6 py-2 rounded-full font-bold uppercase tracking-wider text-sm transition-all ${activeTab === 'video' ? 'bg-[#00D2BE] text-black' : 'bg-zinc-900 text-zinc-400 hover:text-white'}`}
+            >
+                <div className="flex items-center gap-2"><Video size={16}/> Videos</div>
+            </button>
+            <button 
+                onClick={() => setActiveTab('photo')}
+                className={`px-6 py-2 rounded-full font-bold uppercase tracking-wider text-sm transition-all ${activeTab === 'photo' ? 'bg-[#00D2BE] text-black' : 'bg-zinc-900 text-zinc-400 hover:text-white'}`}
+            >
+                <div className="flex items-center gap-2"><ImageIcon size={16}/> Photography</div>
+            </button>
+            <button 
+                onClick={() => setActiveTab('design')}
+                className={`px-6 py-2 rounded-full font-bold uppercase tracking-wider text-sm transition-all ${activeTab === 'design' ? 'bg-[#00D2BE] text-black' : 'bg-zinc-900 text-zinc-400 hover:text-white'}`}
+            >
+                <div className="flex items-center gap-2"><Palette size={16}/> Design</div>
+            </button>
+        </div>
+
+        {/* --- VIDEO SECTION --- */}
+        {activeTab === 'video' && (
+            <>
+                <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
+                {videos.map((item, idx) => (
+                    <a 
+                    key={idx} 
+                    href={item.link} 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="group relative aspect-video bg-zinc-900 border border-zinc-800 overflow-hidden cursor-pointer block hover:border-[#00D2BE] transition-colors"
+                    >
+                    <img 
+                        src={item.img} 
+                        alt={item.title}
+                        className="w-full h-full object-cover opacity-60 transition-all group-hover:opacity-40 group-hover:scale-105"
+                    />
+                    <div className="absolute inset-0 flex items-center justify-center">
+                        <PlayCircle className="w-16 h-16 text-white opacity-80 group-hover:opacity-100 group-hover:text-[#00D2BE] transition-all transform group-hover:scale-110" />
+                    </div>
+                    <div className="absolute bottom-0 left-0 w-full p-4 bg-gradient-to-t from-black via-black/80 to-transparent">
+                        <h3 className="text-white font-bold text-lg leading-tight mb-1 group-hover:text-[#00D2BE] transition-colors">{item.title}</h3>
+                        <p className="text-zinc-400 text-xs uppercase tracking-wider font-bold">{item.artist}</p>
+                        <div className="absolute right-4 bottom-4 opacity-0 group-hover:opacity-100 transition-opacity">
+                            <ExternalLink size={16} className="text-white"/>
+                        </div>
+                    </div>
+                    </a>
+                ))}
+                </div>
+                <div className="flex justify-center">
+                    <a 
+                        href={playlistUrl} 
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                        className="flex items-center gap-3 px-8 py-4 bg-zinc-900 hover:bg-zinc-800 text-white font-bold uppercase tracking-widest border border-zinc-800 hover:border-[#00D2BE] transition-all"
+                    >
+                        <List size={20} className="text-[#00D2BE]"/> View Full Playlist on YouTube
+                    </a>
+                </div>
+            </>
+        )}
+
+        {/* --- PHOTOGRAPHY SECTION (SLIDESHOW) --- */}
+        {activeTab === 'photo' && (
+            <div className="relative w-full max-w-5xl mx-auto aspect-video bg-zinc-950 border border-zinc-800 overflow-hidden group">
+                <img 
+                    src={slideImages[currentSlide]} 
+                    alt={`Slide ${currentSlide + 1}`} 
+                    className="w-full h-full object-contain transition-opacity duration-500"
+                    onError={(e) => {
+                        // Fallback if image not found
+                        (e.target as HTMLElement).style.display = 'none'; 
+                        ((e.target as HTMLElement).nextSibling as HTMLElement).style.display = 'flex'; 
+                    }}
+                />
+                <div className="hidden absolute inset-0 items-center justify-center text-zinc-500 flex-col">
+                    <ImageIcon size={48} className="mb-2"/>
+                    <p>Image not found: {slideImages[currentSlide]}</p>
+                    <p className="text-xs">Make sure 'image {currentSlide + 1}.jpg' is in your public folder.</p>
+                </div>
+
+                {/* Navigation Buttons */}
+                <button 
+                    onClick={prevSlide}
+                    className="absolute left-4 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-[#00D2BE] text-white hover:text-black p-3 rounded-full transition-all backdrop-blur-sm"
+                >
+                    <ArrowLeft size={24} />
+                </button>
+                <button 
+                    onClick={nextSlide}
+                    className="absolute right-4 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-[#00D2BE] text-white hover:text-black p-3 rounded-full transition-all backdrop-blur-sm"
+                >
+                    <ArrowRight size={24} />
+                </button>
+
+                {/* Indicators */}
+                <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex gap-2">
+                    {slideImages.map((_, idx) => (
+                        <button 
+                            key={idx}
+                            onClick={() => setCurrentSlide(idx)}
+                            className={`h-2 rounded-full transition-all ${currentSlide === idx ? 'bg-[#00D2BE] w-8' : 'bg-white/30 w-2 hover:bg-white/50'}`}
+                        />
+                    ))}
+                </div>
+            </div>
+        )}
+
+        {/* --- DESIGN SECTION --- */}
+        {activeTab === 'design' && (
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {designs.map((design) => (
+                    <div key={design.id} className="group relative aspect-square bg-zinc-900 overflow-hidden border border-zinc-800">
+                        <img src={design.src} alt={design.title} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110 opacity-80 group-hover:opacity-100"/>
+                        <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                            <h3 className="text-white text-xl font-bold uppercase tracking-widest">{design.title}</h3>
+                        </div>
+                    </div>
+                ))}
+            </div>
+        )}
+
+      </div>
+    </div>
+  );
+};
+
+const Packages = () => (
+  <div id="packages" className="bg-zinc-950 py-32 px-4 relative overflow-hidden">
+    {/* Background Blob */}
+    <div className="absolute right-0 top-1/2 transform -translate-y-1/2 w-[500px] h-[500px] bg-[#00D2BE]/5 rounded-full blur-[120px] pointer-events-none"></div>
+
+    <div className="max-w-6xl mx-auto relative z-10">
+      <div className="text-center mb-20">
+        <h2 className="text-5xl md:text-6xl font-black text-white uppercase italic mb-6">2026 Season <span className="text-zinc-700 line-through decoration-[#00D2BE]">Pricing</span><br/> Offers</h2>
+        <p className="text-zinc-400 max-w-2xl mx-auto">Lock in your visual strategy for the year. Limited slots available per month.</p>
+      </div>
+
+      <div className="grid lg:grid-cols-2 gap-8 items-stretch">
+        
+        {/* THE ROLLOUT CARD */}
+        <div className="bg-zinc-900 border border-zinc-800 p-10 hover:border-[#00D2BE] transition-all duration-300 flex flex-col group relative">
+          <div className="absolute top-0 right-0 bg-[#00D2BE] text-black text-xs font-bold px-4 py-2 uppercase tracking-widest">
+            Recommended
+          </div>
+          
+          <h3 className="text-4xl font-black text-white italic uppercase mb-2">The Rollout</h3>
+          <p className="text-zinc-500 mb-8">Full monthly dominance.</p>
+          
+          <div className="text-6xl font-black text-white mb-2">$850<span className="text-xl text-zinc-600 font-normal">/mo</span></div>
+          
+          <div className="h-px w-full bg-zinc-800 my-8"></div>
+
+          <div className="space-y-4 mb-10 flex-grow">
+            {['3 Music Videos / Month', '2 Photoshoots', '2 Content Days', 'Strategy & Scheduling', 'RMRP Show Access'].map((item, i) => (
+              <div key={i} className="flex items-center gap-3 text-zinc-300">
+                <CheckCircle size={18} className="text-[#00D2BE]" />
+                <span className="uppercase tracking-wide text-sm font-bold">{item}</span>
+              </div>
+            ))}
+          </div>
+
+          <a href="https://linktr.ee/azwclothing" target="_blank" className="w-full py-5 bg-[#00D2BE] hover:bg-[#00b0a0] text-black font-black uppercase tracking-widest text-center transition-all">
+            Secure Your Slot
+          </a>
+        </div>
+
+        {/* THE SINGLE CARD */}
+        <div className="bg-zinc-950 border border-zinc-900 p-10 hover:border-zinc-700 transition-all duration-300 flex flex-col">
+          <h3 className="text-4xl font-black text-white italic uppercase mb-2">The Single</h3>
+          <p className="text-zinc-500 mb-8">One-off visual execution.</p>
+          
+          <div className="text-6xl font-black text-white mb-2">$450<span className="text-xl text-zinc-600 font-normal">/vid</span></div>
+          
+          <div className="h-px w-full bg-zinc-900 my-8"></div>
+
+          <div className="space-y-4 mb-10 flex-grow">
+            {['1 High Quality Video', 'Professional Editing', 'Color Grading', 'Standard Turnaround'].map((item, i) => (
+              <div key={i} className="flex items-center gap-3 text-zinc-400">
+                <div className="w-4 h-4 rounded-full border border-zinc-700"></div>
+                <span className="uppercase tracking-wide text-sm font-medium">{item}</span>
+              </div>
+            ))}
+          </div>
+
+          <a href="https://linktr.ee/azwclothing" target="_blank" className="w-full py-5 bg-zinc-900 hover:bg-zinc-800 text-white font-black uppercase tracking-widest text-center transition-all border border-zinc-800">
+            Book Single
+          </a>
+        </div>
+
       </div>
     </div>
   </div>
 );
 
-const Packages = () => {
-  return (
-    <div className="bg-zinc-950 min-h-screen py-20 px-4">
-      <div className="max-w-6xl mx-auto">
-        <div className="text-center mb-16">
-          <h2 className="text-4xl font-black italic text-white mb-4 uppercase">2026 Visual Offerings</h2>
-          <p className="text-zinc-500">Flexible plans to dominate the season.</p>
-        </div>
+// --- Admin Components (Hidden by default) ---
 
-        <div className="grid lg:grid-cols-2 gap-8 items-start">
-          
-          {/* THE ROLLOUT */}
-          <div className="relative bg-zinc-900 border-2 border-red-600/50 p-8 rounded-xl shadow-2xl shadow-red-900/10">
-            <div className="absolute -top-4 left-1/2 transform -translate-x-1/2 bg-red-600 text-white px-6 py-1 font-bold tracking-widest uppercase text-sm">
-              Best Value • 3 Month Plan
-            </div>
-            
-            <h3 className="text-3xl font-black text-white italic mb-2 uppercase text-center mt-4">The Rollout</h3>
-            <p className="text-zinc-400 text-center text-sm mb-6">Complete visual dominance for the 2026 season.</p>
-            
-            <div className="text-5xl font-black text-center text-white mb-2">$850<span className="text-lg text-zinc-500 font-normal">/mo</span></div>
-            <p className="text-center text-zinc-500 text-xs mb-8 italic">Split payments available • Pause anytime</p>
-
-            <div className="space-y-6 mb-8 border-t border-zinc-800 pt-6">
-              <div className="flex gap-4">
-                <Video className="text-red-600 shrink-0" />
-                <div>
-                  <h4 className="font-bold text-white">3 Music Videos Per Month</h4>
-                  <p className="text-zinc-400 text-sm">1 Full Production (w/ Studio Access) + 2 Run & Gun style videos.</p>
-                </div>
-              </div>
-              
-              <div className="flex gap-4">
-                <Camera className="text-red-600 shrink-0" />
-                <div>
-                  <h4 className="font-bold text-white">2 Photoshoots</h4>
-                  <p className="text-zinc-400 text-sm">Cover art, Spotify/Apple profiles, and high-res thumbnails.</p>
-                </div>
-              </div>
-
-              <div className="flex gap-4">
-                <Users className="text-red-600 shrink-0" />
-                <div>
-                  <h4 className="font-bold text-white">2 Content Days</h4>
-                  <p className="text-zinc-400 text-sm">Dedicated sessions for Reels/TikTok clips.</p>
-                </div>
-              </div>
-
-              <div className="flex gap-4">
-                <Briefcase className="text-red-600 shrink-0" />
-                <div>
-                  <h4 className="font-bold text-white">Strategy & Backend</h4>
-                  <p className="text-zinc-400 text-sm">Shared notes for ideas, post scheduling, and I handle all backend scheduling so you don't stress.</p>
-                </div>
-              </div>
-
-              <div className="bg-zinc-950 p-4 rounded border border-zinc-800 flex gap-3">
-                <Star className="text-yellow-500 shrink-0" />
-                <div>
-                    <h4 className="font-bold text-white text-sm">RMRP Bonus</h4>
-                    <p className="text-zinc-400 text-xs">Free/discounted opener slots + Free entry for RMRP shows in Chi/Aurora for 2026.</p>
-                </div>
-              </div>
-            </div>
-
-            <div className="bg-gradient-to-r from-red-900/20 to-zinc-900 border border-red-900/30 p-4 rounded mb-8">
-                <p className="text-white text-sm font-bold flex items-center gap-2">
-                    <Users size={16} className="text-red-500"/> THE REFERRAL DEAL:
-                </p>
-                <p className="text-zinc-400 text-xs mt-1">Lock in w/ a friend and I knock <span className="text-white font-bold">$100 off</span> the first month for BOTH of you.</p>
-            </div>
-
-            <a 
-              href="https://linktr.ee/azwclothing" 
-              target="_blank"
-              rel="noopener noreferrer"
-              className="block w-full text-center py-4 bg-red-600 hover:bg-red-700 text-white font-bold uppercase tracking-widest transition-colors cursor-pointer"
-            >
-              Start Your Rollout
-            </a>
-          </div>
-
-          {/* THE SINGLE */}
-          <div className="bg-zinc-900 border border-zinc-800 p-8 rounded-xl opacity-90 hover:opacity-100 transition-opacity">
-            <h3 className="text-2xl font-black text-white italic mb-2 uppercase text-center">The Single</h3>
-            <p className="text-zinc-400 text-center text-sm mb-6">One-off visual execution.</p>
-            
-            <div className="text-4xl font-black text-center text-white mb-8">$450 <span className="text-lg text-zinc-500 font-normal">/video</span></div>
-
-            <ul className="space-y-4 mb-8 border-t border-zinc-800 pt-6">
-              <li className="flex items-center text-zinc-300 text-sm">
-                <CheckCircle className="text-zinc-600 w-4 h-4 mr-3" />
-                1 High Quality Music Video
-              </li>
-              <li className="flex items-center text-zinc-300 text-sm">
-                <CheckCircle className="text-zinc-600 w-4 h-4 mr-3" />
-                Professional Editing & Color
-              </li>
-              <li className="flex items-center text-zinc-300 text-sm">
-                <CheckCircle className="text-zinc-600 w-4 h-4 mr-3" />
-                Standard Turnaround
-              </li>
-            </ul>
-
-            <a 
-              href="https://linktr.ee/azwclothing" 
-              target="_blank"
-              rel="noopener noreferrer"
-              className="block w-full text-center py-4 bg-zinc-800 hover:bg-zinc-700 text-white font-bold uppercase tracking-widest transition-colors border border-zinc-700"
-            >
-              Book Now
-            </a>
-
-        </div>
-      </div>
-    </div>
-    </div>
-  );
-};
-
-const Portfolio = () => {
-  const projects = [
-    { 
-      title: "Another Love Song", 
-      artist: "Wilmo",
-      img: "https://img.youtube.com/vi/OVSVo2zTMM0/maxresdefault.jpg",
-      link: "https://youtu.be/OVSVo2zTMM0"
-    },
-    { 
-      title: "HAHA! (Official Music Video)", 
-      artist: "Pa$ty",
-      img: "https://img.youtube.com/vi/y9krRRjjLEA/maxresdefault.jpg",
-      link: "https://youtu.be/y9krRRjjLEA"
-    },
-    { 
-      title: "Back Again (Music Video)", 
-      artist: "Zayyfrm050",
-      img: "https://img.youtube.com/vi/oTqo4FKAEcc/maxresdefault.jpg",
-      link: "https://youtu.be/oTqo4FKAEcc"
-    },
-    { 
-      title: "FEEL LESS RIGHT THAN WRONG", 
-      artist: "Cash$tarr",
-      img: "https://img.youtube.com/vi/Xpbu7kPphdw/maxresdefault.jpg",
-      link: "https://youtu.be/Xpbu7kPphdw"
-    },
-    { 
-      title: "Everyday (Official Music Video)", 
-      artist: "Pa$ty",
-      img: "https://img.youtube.com/vi/581MvmIE9to/maxresdefault.jpg",
-      link: "https://youtu.be/581MvmIE9to"
-    },
-    { 
-      title: "Stay (Official Music Video)", 
-      artist: "Nyce Widdit",
-      img: "https://img.youtube.com/vi/NOTk0b_ieNU/maxresdefault.jpg",
-      link: "https://youtu.be/NOTk0b_ieNU"
-    }
-  ];
-
-  const playlistUrl = "https://www.youtube.com/playlist?list=PLN86zTGXdQcoO-nbBlx3mSgAUTzYbFdqW";
-
-  return (
-    <div className="bg-zinc-950 min-h-screen py-20 px-4">
-      <div className="max-w-7xl mx-auto">
-        <h2 className="text-3xl font-black italic text-white mb-10 border-l-4 border-red-600 pl-4 uppercase">Selected Works</h2>
-        
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
-          {projects.map((proj, idx) => (
-            <a 
-              key={idx} 
-              href={proj.link} 
-              target="_blank" 
-              rel="noopener noreferrer"
-              className="group relative aspect-video bg-zinc-900 border border-zinc-800 overflow-hidden cursor-pointer block hover:border-red-600 transition-colors"
-            >
-              <img 
-                src={proj.img} 
-                alt={proj.title}
-                className="w-full h-full object-cover opacity-60 transition-all group-hover:opacity-40 group-hover:scale-105"
-              />
-              <div className="absolute inset-0 flex items-center justify-center">
-                <PlayCircle className="w-16 h-16 text-white opacity-80 group-hover:opacity-100 group-hover:text-red-500 transition-all transform group-hover:scale-110" />
-              </div>
-              <div className="absolute bottom-0 left-0 w-full p-4 bg-gradient-to-t from-black via-black/80 to-transparent">
-                <h3 className="text-white font-bold text-lg leading-tight mb-1 group-hover:text-red-500 transition-colors">{proj.title}</h3>
-                <p className="text-zinc-400 text-xs uppercase tracking-wider font-bold">{proj.artist}</p>
-                <div className="absolute right-4 bottom-4 opacity-0 group-hover:opacity-100 transition-opacity">
-                    <ExternalLink size={16} className="text-white"/>
-                </div>
-              </div>
-            </a>
-          ))}
-        </div>
-
-        <div className="flex justify-center">
-            <a 
-                href={playlistUrl} 
-                target="_blank" 
-                rel="noopener noreferrer"
-                className="flex items-center gap-3 px-8 py-4 bg-zinc-900 hover:bg-zinc-800 text-white font-bold uppercase tracking-widest border border-zinc-800 hover:border-red-600 transition-all"
-            >
-                <List size={20} className="text-red-600"/> View Full Playlist on YouTube
-            </a>
-        </div>
-
-      </div>
-    </div>
-  );
-};
-
-// --- Admin Section ---
-
-interface LoginProps {
-  setView: (view: string) => void;
-}
-
-const Login = ({ setView }: LoginProps) => {
+const AdminLogin = ({ setView, setAdminMode }: any) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
@@ -453,246 +518,92 @@ const Login = ({ setView }: LoginProps) => {
     try {
       await signInWithEmailAndPassword(auth, email, password);
       setView('admin');
+      setAdminMode(true);
     } catch (err) {
-      setError("Failed to login.");
-      console.error(err);
+      setError("Invalid credentials.");
     }
   };
 
-  const handleDemoLogin = async () => {
-    // Allows preview users to see the dashboard without credentials
-    try {
-        await signInAnonymously(auth);
-        setView('admin');
-    } catch(err) {
-        setError("Demo login failed.");
-    }
-  }
-
   return (
-    <div className="min-h-screen bg-zinc-950 flex flex-col items-center justify-center px-4">
-      <h1 className="text-4xl font-black italic text-white mb-8 uppercase tracking-widest animate-pulse">
-        Welcome back Zak
-      </h1>
-      
-      <div className="max-w-md w-full bg-zinc-900 p-8 rounded-none border border-zinc-800 shadow-2xl">
-        <div className="text-center mb-8">
-          <Lock className="w-8 h-8 text-red-600 mx-auto mb-4" />
-          <h2 className="text-xl font-bold text-white uppercase tracking-wider">Admin Portal</h2>
-        </div>
-        
-        {error && <div className="bg-red-900/30 border border-red-800 text-red-400 px-4 py-2 mb-4 text-xs">{error}</div>}
-
+    <div className="min-h-screen bg-black flex items-center justify-center">
+      <div className="w-full max-w-md p-8">
+        <h2 className="text-3xl font-black text-white uppercase italic mb-8">Staff Access</h2>
+        {error && <div className="text-red-500 text-sm mb-4">{error}</div>}
         <form onSubmit={handleLogin} className="space-y-4">
-          <div>
-            <label className="block text-xs font-bold text-zinc-500 mb-1 uppercase">Email</label>
-            <input 
-              type="email" 
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              className="w-full bg-zinc-950 border border-zinc-800 p-3 text-white focus:outline-none focus:border-red-600 transition-colors"
-              placeholder="admin@azw.com"
-            />
-          </div>
-          <div>
-            <label className="block text-xs font-bold text-zinc-500 mb-1 uppercase">Password</label>
-            <input 
-              type="password" 
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className="w-full bg-zinc-950 border border-zinc-800 p-3 text-white focus:outline-none focus:border-red-600 transition-colors"
-              placeholder="••••••••"
-            />
-          </div>
-          <button type="submit" className="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-3 uppercase tracking-widest transition-colors">
-            Enter
-          </button>
+          <input type="email" placeholder="Email" className="w-full bg-zinc-900 border border-zinc-800 p-4 text-white focus:border-[#00D2BE] outline-none" value={email} onChange={e => setEmail(e.target.value)} />
+          <input type="password" placeholder="Password" className="w-full bg-zinc-900 border border-zinc-800 p-4 text-white focus:border-[#00D2BE] outline-none" value={password} onChange={e => setPassword(e.target.value)} />
+          <button className="w-full bg-[#00D2BE] text-black font-bold py-4 uppercase tracking-widest">Enter</button>
         </form>
-        <div className="mt-4 pt-4 border-t border-zinc-800 text-center">
-            <button onClick={handleDemoLogin} className="text-xs text-zinc-500 underline hover:text-white">
-                View Demo Dashboard
-            </button>
-        </div>
+        <button onClick={() => setView('home')} className="mt-6 text-zinc-600 text-sm hover:text-white uppercase tracking-widest">Back to Site</button>
       </div>
     </div>
   );
 };
 
-const AdminDashboard = ({ user, setView }: { user: FirebaseUser, setView: (view: string) => void }) => {
+const AdminDashboard = ({ user }: any) => {
   const [projects, setProjects] = useState<Project[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [newProject, setNewProject] = useState<NewProjectState>({
-    clientName: '',
-    projectName: '',
-    date: new Date().toISOString().split('T')[0],
-    income: '',
-    expense: '',
-    status: 'In Progress'
-  });
+  const [newProject, setNewProject] = useState<NewProjectState>({ clientName: '', projectName: '', date: '', income: '', expense: '', status: 'In Progress' });
 
-  const collectionName = 'projects';
-  
   useEffect(() => {
     if (!user) return;
-    const q = query(collection(db, 'artifacts', appId, 'users', user.uid, collectionName), orderBy('date', 'desc'));
-    const unsubscribe = onSnapshot(q, (snapshot) => {
-      const projData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Project));
-      setProjects(projData);
-      setLoading(false);
-    }, (error) => { console.error(error); setLoading(false); });
-    return () => unsubscribe();
+    const q = query(collection(db, 'artifacts', appId, 'users', user.uid, 'projects'), orderBy('date', 'desc'));
+    return onSnapshot(q, (snapshot) => {
+      setProjects(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Project)));
+    });
   }, [user]);
 
-  const handleAddProject = async (e: React.FormEvent) => {
+  const handleAdd = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!user) return;
-    try {
-      await addDoc(collection(db, 'artifacts', appId, 'users', user.uid, collectionName), {
-        ...newProject,
-        income: parseFloat(newProject.income.toString()) || 0,
-        expense: parseFloat(newProject.expense.toString()) || 0,
-        createdAt: serverTimestamp()
-      });
-      setNewProject({ clientName: '', projectName: '', date: new Date().toISOString().split('T')[0], income: '', expense: '', status: 'In Progress' });
-    } catch (err) { alert("Failed to add project"); }
+    await addDoc(collection(db, 'artifacts', appId, 'users', user.uid, 'projects'), {
+      ...newProject,
+      income: parseFloat(newProject.income.toString()) || 0,
+      expense: parseFloat(newProject.expense.toString()) || 0,
+      createdAt: serverTimestamp()
+    });
+    setNewProject({ clientName: '', projectName: '', date: '', income: '', expense: '', status: 'In Progress' });
   };
 
   const handleDelete = async (id: string) => {
-    if (!confirm("Delete this record?")) return;
-    try { await deleteDoc(doc(db, 'artifacts', appId, 'users', user.uid, collectionName, id)); } 
-    catch (err) { console.error(err); }
+    if (confirm("Delete?")) await deleteDoc(doc(db, 'artifacts', appId, 'users', user.uid, 'projects', id));
   };
 
-  const totals = useMemo(() => {
-    return projects.reduce((acc, curr) => ({
-      income: acc.income + (curr.income || 0),
-      expense: acc.expense + (curr.expense || 0),
-      net: acc.net + ((curr.income || 0) - (curr.expense || 0))
-    }), { income: 0, expense: 0, net: 0 });
-  }, [projects]);
-
   return (
-    <div className="min-h-screen bg-zinc-950 text-white">
-      <header className="bg-zinc-900 border-b border-zinc-800 p-6">
-        <div className="max-w-7xl mx-auto flex justify-between items-center">
-          <div>
-              <h1 className="text-2xl font-black italic uppercase text-white">Welcome back Zak</h1>
-              <p className="text-zinc-500 text-sm">Financial Tracking & Project Management</p>
-          </div>
-          <div className="flex items-center gap-4">
-              <button 
-                  onClick={() => setView('home')} 
-                  className="px-4 py-2 text-xs font-bold uppercase tracking-wider text-zinc-400 hover:text-white border border-zinc-800 hover:border-zinc-600 rounded transition-all flex items-center gap-2"
-              >
-                  <Home size={14} /> Back to Site
-              </button>
-              <button onClick={() => { signOut(auth); setView('login'); }} className="p-2 hover:bg-zinc-800 rounded text-zinc-400 hover:text-red-500 transition-colors">
-                <LogOut size={20} />
-              </button>
-          </div>
+    <div className="min-h-screen bg-black text-white p-8">
+      <div className="max-w-6xl mx-auto">
+        <div className="flex justify-between items-center mb-12">
+           <h1 className="text-4xl font-black italic uppercase">Dashboard</h1>
+           <a href="/" className="text-sm text-zinc-400 hover:text-white flex items-center gap-2"><Home size={16}/> Back to Site</a>
         </div>
-      </header>
+        
+        {/* Simple Add Form */}
+        <form onSubmit={handleAdd} className="grid grid-cols-2 md:grid-cols-6 gap-4 mb-12 bg-zinc-900 p-6">
+          <input placeholder="Client" className="bg-black p-2 text-white border border-zinc-800" value={newProject.clientName} onChange={e => setNewProject({...newProject, clientName: e.target.value})} />
+          <input placeholder="Project" className="bg-black p-2 text-white border border-zinc-800" value={newProject.projectName} onChange={e => setNewProject({...newProject, projectName: e.target.value})} />
+          <input type="date" className="bg-black p-2 text-white border border-zinc-800" value={newProject.date} onChange={e => setNewProject({...newProject, date: e.target.value})} />
+          <input type="number" placeholder="Income" className="bg-black p-2 text-white border border-zinc-800" value={newProject.income} onChange={e => setNewProject({...newProject, income: e.target.value})} />
+          <input type="number" placeholder="Expense" className="bg-black p-2 text-white border border-zinc-800" value={newProject.expense} onChange={e => setNewProject({...newProject, expense: e.target.value})} />
+          <button className="bg-[#00D2BE] text-black font-bold uppercase">Add</button>
+        </form>
 
-      <main className="max-w-7xl mx-auto p-4 sm:p-6 lg:p-8">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-            <div className="bg-zinc-900 p-6 border-l-4 border-zinc-700">
-                <div className="text-zinc-500 text-xs uppercase tracking-widest mb-1">Total Revenue</div>
-                <div className="text-3xl font-black text-white">${totals.income.toLocaleString()}</div>
+        {/* List */}
+        <div className="space-y-2">
+          {projects.map(p => (
+            <div key={p.id} className="flex justify-between items-center bg-zinc-900 p-4 border border-zinc-800">
+              <div>
+                <div className="font-bold">{p.clientName}</div>
+                <div className="text-zinc-500 text-sm">{p.projectName}</div>
+              </div>
+              <div className="flex items-center gap-4">
+                <div className="text-[#00D2BE] font-mono">${p.income - p.expense}</div>
+                <button onClick={() => handleDelete(p.id)} className="text-red-500"><Trash2 size={16}/></button>
+              </div>
             </div>
-            <div className="bg-zinc-900 p-6 border-l-4 border-red-900">
-                <div className="text-zinc-500 text-xs uppercase tracking-widest mb-1">Total Expenses</div>
-                <div className="text-3xl font-black text-red-500">${totals.expense.toLocaleString()}</div>
-            </div>
-            <div className="bg-zinc-900 p-6 border-l-4 border-green-900">
-                <div className="text-zinc-500 text-xs uppercase tracking-widest mb-1">Net Profit</div>
-                <div className={`text-3xl font-black ${totals.net >= 0 ? 'text-green-500' : 'text-red-500'}`}>${totals.net.toLocaleString()}</div>
-            </div>
+          ))}
         </div>
-
-        <div className="bg-zinc-900 p-6 mb-8 border border-zinc-800">
-            <h3 className="text-lg font-bold mb-6 flex items-center gap-2 uppercase tracking-wider"><Plus size={18} className="text-red-500"/> Log New Project</h3>
-            <form onSubmit={handleAddProject} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-4">
-                <div className="lg:col-span-2">
-                    <label className="block text-xs text-zinc-500 mb-1 uppercase">Client</label>
-                    <input required type="text" className="w-full bg-zinc-950 border border-zinc-800 p-2 text-sm focus:border-red-600 focus:outline-none text-white" 
-                        value={newProject.clientName} onChange={e => setNewProject({...newProject, clientName: e.target.value})} />
-                </div>
-                <div className="lg:col-span-2">
-                    <label className="block text-xs text-zinc-500 mb-1 uppercase">Project</label>
-                    <input required type="text" className="w-full bg-zinc-950 border border-zinc-800 p-2 text-sm focus:border-red-600 focus:outline-none text-white" 
-                        value={newProject.projectName} onChange={e => setNewProject({...newProject, projectName: e.target.value})} />
-                </div>
-                <div>
-                    <label className="block text-xs text-zinc-500 mb-1 uppercase">Date</label>
-                    <input required type="date" className="w-full bg-zinc-950 border border-zinc-800 p-2 text-sm text-zinc-300 focus:border-red-600 focus:outline-none" 
-                        value={newProject.date} onChange={e => setNewProject({...newProject, date: e.target.value})} />
-                </div>
-                 <div>
-                    <label className="block text-xs text-zinc-500 mb-1 uppercase">Status</label>
-                    <select className="w-full bg-zinc-950 border border-zinc-800 p-2 text-sm text-zinc-300 focus:border-red-600 focus:outline-none"
-                        value={newProject.status} onChange={e => setNewProject({...newProject, status: e.target.value})}>
-                        <option>In Progress</option>
-                        <option>Completed</option>
-                        <option>Invoiced</option>
-                        <option>Paid</option>
-                    </select>
-                </div>
-                <div>
-                    <label className="block text-xs text-zinc-500 mb-1 uppercase">Income</label>
-                    <input required type="number" className="w-full bg-zinc-950 border border-zinc-800 p-2 text-sm focus:border-red-600 focus:outline-none text-white" 
-                        value={newProject.income} onChange={e => setNewProject({...newProject, income: e.target.value})} />
-                </div>
-                <div>
-                    <label className="block text-xs text-zinc-500 mb-1 uppercase">Expense</label>
-                    <input type="number" className="w-full bg-zinc-950 border border-zinc-800 p-2 text-sm focus:border-red-600 focus:outline-none text-white" 
-                        value={newProject.expense} onChange={e => setNewProject({...newProject, expense: e.target.value})} />
-                </div>
-                <div className="lg:col-span-4 flex items-end">
-                    <button type="submit" className="bg-zinc-800 hover:bg-zinc-700 text-white font-bold py-2 px-6 text-sm transition-colors w-full md:w-auto uppercase tracking-wide">
-                        Add Record
-                    </button>
-                </div>
-            </form>
-        </div>
-
-        <div className="bg-zinc-900 border border-zinc-800">
-            <div className="p-4 border-b border-zinc-800 flex justify-between items-center">
-                <h3 className="text-lg font-bold uppercase tracking-wider">Recent Projects</h3>
-                <button onClick={() => exportToCSV(projects, `AZW_Finances_${new Date().toISOString().slice(0,10)}.csv`)} className="text-green-500 text-xs font-bold uppercase hover:underline">
-                     Export CSV
-                </button>
-            </div>
-            <div className="overflow-x-auto">
-                <table className="w-full text-left text-sm text-zinc-400">
-                    <thead className="bg-zinc-950 uppercase font-medium text-xs text-zinc-500">
-                        <tr>
-                            <th className="px-6 py-3">Date</th>
-                            <th className="px-6 py-3">Client</th>
-                            <th className="px-6 py-3">Project</th>
-                            <th className="px-6 py-3">Status</th>
-                            <th className="px-6 py-3 text-right">Net</th>
-                            <th className="px-6 py-3 text-center">Action</th>
-                        </tr>
-                    </thead>
-                    <tbody className="divide-y divide-zinc-800">
-                        {loading ? <tr><td colSpan={6} className="text-center py-8">Loading...</td></tr> : 
-                         projects.map((proj) => (
-                            <tr key={proj.id} className="hover:bg-zinc-800/50 transition-colors">
-                                <td className="px-6 py-4 whitespace-nowrap">{proj.date}</td>
-                                <td className="px-6 py-4 font-bold text-white">{proj.clientName}</td>
-                                <td className="px-6 py-4">{proj.projectName}</td>
-                                <td className="px-6 py-4"><span className="bg-zinc-800 text-zinc-300 px-2 py-1 text-xs uppercase">{proj.status}</span></td>
-                                <td className="px-6 py-4 text-right font-bold text-white">${(proj.income - proj.expense).toLocaleString()}</td>
-                                <td className="px-6 py-4 text-center">
-                                    <button onClick={() => handleDelete(proj.id)} className="text-zinc-600 hover:text-red-600"><Trash2 size={16} /></button>
-                                </td>
-                            </tr>
-                        ))}
-                    </tbody>
-                </table>
-            </div>
-        </div>
-      </main>
+        
+        <button onClick={() => exportToCSV(projects, 'finances.csv')} className="mt-8 text-zinc-500 hover:text-white text-sm uppercase tracking-widest">Download CSV</button>
+      </div>
     </div>
   );
 };
@@ -700,62 +611,54 @@ const AdminDashboard = ({ user, setView }: { user: FirebaseUser, setView: (view:
 // --- Main App Controller ---
 
 export default function App() {
-  const [view, setView] = useState('home');
+  const [view, setView] = useState('home'); // 'home' | 'login' | 'admin'
   const [user, setUser] = useState<FirebaseUser | null>(null);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isAdminMode, setAdminMode] = useState(false);
 
   useEffect(() => {
-    // 1. Check if we're in the weird sandbox mode (local env check)
-    if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
-        signInWithCustomToken(auth, __initial_auth_token).catch(e => console.warn(e));
-    }
-
-    // 2. Standard Firebase listener
-    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
-      setUser(currentUser);
-      if (!currentUser && view === 'admin') setView('login');
+    // @ts-ignore
+    if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) signInWithCustomToken(auth, __initial_auth_token).catch(console.warn);
+    onAuthStateChanged(auth, u => {
+      setUser(u);
+      if (!u && view === 'admin') setView('login');
     });
-    return () => unsubscribe();
   }, [view]);
 
+  // If viewing admin or login, show that full screen
+  if (view === 'login') return <AdminLogin setView={setView} setAdminMode={setAdminMode} />;
+  if (view === 'admin' && user) return <AdminDashboard user={user} setView={setView} />;
+
+  // Otherwise show the landing page
   return (
-    <div className="font-sans bg-zinc-950 min-h-screen text-zinc-200 selection:bg-red-600 selection:text-white">
-      {view !== 'admin' && view !== 'login' && (
-        <Navigation 
-            setView={setView} 
-            user={user} 
-            currentView={view} 
-            isMobileMenuOpen={isMobileMenuOpen}
-            setIsMobileMenuOpen={setIsMobileMenuOpen}
-        />
-      )}
+    <div className="font-sans bg-zinc-950 min-h-screen text-zinc-200 selection:bg-[#00D2BE] selection:text-black">
+      <Navigation 
+          isAdminMode={isAdminMode}
+          setAdminMode={setAdminMode}
+          isMobileMenuOpen={isMobileMenuOpen}
+          setIsMobileMenuOpen={setIsMobileMenuOpen}
+          user={user}
+          setView={setView}
+      />
       
-      {view === 'home' && <Hero setView={setView} />}
-      {view === 'packages' && <Packages />}
-      {view === 'portfolio' && <Portfolio />}
-      {view === 'login' && <Login setView={setView} />}
-      {view === 'admin' && user && <AdminDashboard user={user} setView={setView} />}
+      <Hero setView={setView} />
+      <Marquee />
+      <Portfolio />
+      <Packages />
       
-      {view !== 'admin' && view !== 'login' && (
-        <footer className="bg-zinc-950 border-t border-zinc-900 py-12 px-4">
-          <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center text-zinc-600 text-sm">
-            <div className="flex items-center mb-4 md:mb-0">
-               <img src="/logo.png" alt="Directed By AZW" className="h-16 w-auto opacity-50 grayscale hover:grayscale-0 transition-all" 
-                    onError={(e) => { 
-                      const target = e.target as HTMLImageElement;
-                      target.style.display = 'none'; 
-                      if (target.nextSibling) (target.nextSibling as HTMLElement).style.display = 'block'; 
-                    }} 
-               />
-               <span className="hidden ml-3 text-xs font-bold uppercase tracking-wider text-zinc-600">2026 Season</span>
-            </div>
-            <div className="flex space-x-6">
-              <a href="https://www.instagram.com/azw.one/" className="hover:text-red-600 transition-colors">Instagram</a>
-              <a href="https://linktr.ee/azwclothing" className="hover:text-red-600 transition-colors">Contact</a>
-            </div>
+      <footer className="bg-zinc-950 border-t border-zinc-900 py-12 px-4">
+        <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center text-zinc-600 text-sm">
+          <div className="flex items-center mb-4 md:mb-0">
+             <span className="font-bold uppercase tracking-widest">© 2026 AZW</span>
           </div>
-        </footer>
-      )}
+          <div className="flex space-x-6 items-center">
+            <a href="https://www.instagram.com/azw.one/" className="hover:text-[#00D2BE] transition-colors">Instagram</a>
+            <a href="https://linktr.ee/azwclothing" className="hover:text-[#00D2BE] transition-colors">Contact</a>
+            {/* Secret Admin Button */}
+            <button onClick={() => setView('login')} className="opacity-0 hover:opacity-100 transition-opacity ml-4"><Lock size={12}/></button>
+          </div>
+        </div>
+      </footer>
     </div>
   );
 }
