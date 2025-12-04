@@ -1,17 +1,12 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
-  Camera, 
-  Briefcase, 
-  Plus, 
   Trash2, 
   Lock, 
   LogOut, 
   Menu, 
   X,
   CheckCircle,
-  Users,
   Video,
-  Star,
   Home,
   PlayCircle,
   ExternalLink,
@@ -27,10 +22,8 @@ import { initializeApp } from "firebase/app";
 import { 
   getAuth, 
   signInWithEmailAndPassword, 
-  signOut, 
   onAuthStateChanged,
-  signInWithCustomToken,
-  signInAnonymously
+  signInWithCustomToken
 } from "firebase/auth";
 import type { User as FirebaseUser } from "firebase/auth";
 import { 
@@ -587,13 +580,12 @@ const AdminDashboard = ({ user, setView }: AdminDashboardProps) => {
     if (confirm("Delete?")) await deleteDoc(doc(db, 'artifacts', appId, 'users', user.uid, 'projects', id));
   };
 
-  const totals = useMemo(() => {
-    return projects.reduce((acc, curr) => ({
-      income: acc.income + (curr.income || 0),
-      expense: acc.expense + (curr.expense || 0),
-      net: acc.net + ((curr.income || 0) - (curr.expense || 0))
-    }), { income: 0, expense: 0, net: 0 });
-  }, [projects]);
+  // Use a derived variable instead of useMemo for simplicity in this small scope
+  const totals = projects.reduce((acc, curr) => ({
+    income: acc.income + (curr.income || 0),
+    expense: acc.expense + (curr.expense || 0),
+    net: acc.net + ((curr.income || 0) - (curr.expense || 0))
+  }), { income: 0, expense: 0, net: 0 });
 
   return (
     <div className="min-h-screen bg-black text-white p-8">
