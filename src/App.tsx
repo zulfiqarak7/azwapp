@@ -13,6 +13,7 @@ import {
   List,
   Image as ImageIcon,
   Palette,
+  ArrowDown,
   LayoutDashboard,
   ArrowLeft,
   ArrowRight,
@@ -282,17 +283,23 @@ const Portfolio = () => {
   // Images for each photo section
   const photoImages = {
     portraits: [
-        "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=1200&q=80",
-        "https://images.unsplash.com/photo-1517841905240-472988babdf9?w=1200&q=80",
-        "https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?w=1200&q=80"
+        "/image 1.jpg",
+        "/image 2.jpg",
+        "/image 3.jpg",
+        "/image 6.jpg",
+        "/image 7.jpg",
+        "/image 8.jpg",
+        "/image 9.jpg",
+        "/image 10.jpg",
+        "/image 11.jpg"
     ],
     headshots: [
+        // Placeholder for now, replace with local files if available
         "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=1200&q=80",
         "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=1200&q=80",
         "https://images.unsplash.com/photo-1560250097-0b93528c311a?w=1200&q=80"
     ],
     events: [
-        // Linked to your local public folder files
         "/image 4.jpg",
         "/image 5.jpg"
     ]
