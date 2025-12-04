@@ -1,12 +1,17 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { 
+  Camera, 
+  Briefcase, 
+  Plus, 
   Trash2, 
   Lock, 
   LogOut, 
   Menu, 
   X,
   CheckCircle,
+  Users,
   Video,
+  Star,
   Home,
   PlayCircle,
   ExternalLink,
@@ -22,8 +27,10 @@ import { initializeApp } from "firebase/app";
 import { 
   getAuth, 
   signInWithEmailAndPassword, 
+  signOut, 
   onAuthStateChanged,
-  signInWithCustomToken
+  signInWithCustomToken,
+  signInAnonymously
 } from "firebase/auth";
 import type { User as FirebaseUser } from "firebase/auth";
 import { 
@@ -534,7 +541,7 @@ const AdminLogin = ({ setView, setAdminMode }: any) => {
   );
 };
 
-const AdminDashboard = ({ user }: any) => {
+const AdminDashboard = ({ user, setView }: any) => {
   const [projects, setProjects] = useState<Project[]>([]);
   const [newProject, setNewProject] = useState<NewProjectState>({ clientName: '', projectName: '', date: '', income: '', expense: '', status: 'In Progress' });
 
@@ -567,7 +574,7 @@ const AdminDashboard = ({ user }: any) => {
       <div className="max-w-6xl mx-auto">
         <div className="flex justify-between items-center mb-12">
            <h1 className="text-4xl font-black italic uppercase">Dashboard</h1>
-           <a href="/" className="text-sm text-zinc-400 hover:text-white flex items-center gap-2"><Home size={16}/> Back to Site</a>
+           <button onClick={() => setView('home')} className="text-sm text-zinc-400 hover:text-white flex items-center gap-2"><Home size={16}/> Back to Site</button>
         </div>
         
         {/* Simple Add Form */}
