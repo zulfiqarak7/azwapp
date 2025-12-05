@@ -133,6 +133,33 @@ const exportToCSV = (data: Project[], fileName: string) => {
 
 // --- 4. Sub-Components ---
 
+// *** NEW: Background Video Component ***
+const BackgroundVideo = () => {
+    // NOTE: Replace the src below with "/background.mp4" when you add your local file.
+    // I am using a placeholder URL so you can see the effect in the preview.
+    const videoSrc = "background.mp4";
+    // Or if you upload your own: "/background.mp4"
+
+    return (
+        <div className="fixed inset-0 w-full h-full -z-50 overflow-hidden">
+             {/* The Video Element */}
+            <video
+                autoPlay
+                loop
+                muted
+                playsInline
+                className="absolute top-1/2 left-1/2 min-w-full min-h-full w-auto h-auto -translate-x-1/2 -translate-y-1/2 object-cover"
+                src={videoSrc}
+            />
+            {/* Dark Overlay to make text readable */}
+            <div className="absolute inset-0 bg-black/60 mix-blend-multiply"></div>
+            {/* Grain Overlay for texture (kept from previous design) */}
+            <div className="absolute inset-0 bg-grain opacity-20 mix-blend-overlay pointer-events-none"></div>
+        </div>
+    );
+};
+
+
 interface NavigationProps {
   isMobileMenuOpen: boolean;
   setIsMobileMenuOpen: (isOpen: boolean) => void;
@@ -146,7 +173,7 @@ const Navigation = ({ isMobileMenuOpen, setIsMobileMenuOpen, isAdminMode, setAdm
   const [logoError, setLogoError] = useState(false);
 
   return (
-    <nav className="bg-zinc-950/80 backdrop-blur-md border-b border-zinc-800 sticky top-0 z-50">
+    <nav className="bg-black/40 backdrop-blur-md border-b border-white/10 sticky top-0 z-50 transition-all duration-300">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between h-20 items-center">
           {/* LOGO SECTION */}
@@ -168,9 +195,9 @@ const Navigation = ({ isMobileMenuOpen, setIsMobileMenuOpen, isAdminMode, setAdm
           {/* Desktop Menu */}
           {!isAdminMode && (
             <div className="hidden md:flex items-center space-x-8 font-mono">
-              <button onClick={() => scrollToSection('hero')} className="text-sm font-medium text-zinc-400 hover:text-[#00D2BE] transition-colors uppercase tracking-widest">Home</button>
-              <button onClick={() => scrollToSection('portfolio')} className="text-sm font-medium text-zinc-400 hover:text-[#00D2BE] transition-colors uppercase tracking-widest">Work</button>
-              <button onClick={() => scrollToSection('packages')} className="text-sm font-medium text-zinc-400 hover:text-[#00D2BE] transition-colors uppercase tracking-widest">Packages</button>
+              <button onClick={() => scrollToSection('hero')} className="text-sm font-medium text-zinc-300 hover:text-[#00D2BE] transition-colors uppercase tracking-widest">Home</button>
+              <button onClick={() => scrollToSection('portfolio')} className="text-sm font-medium text-zinc-300 hover:text-[#00D2BE] transition-colors uppercase tracking-widest">Work</button>
+              <button onClick={() => scrollToSection('packages')} className="text-sm font-medium text-zinc-300 hover:text-[#00D2BE] transition-colors uppercase tracking-widest">Packages</button>
               <a href="https://linktr.ee/azwclothing" target="_blank" rel="noreferrer" className="px-6 py-2 bg-[#00D2BE] hover:bg-[#00b0a0] text-black font-bold text-xs uppercase tracking-widest rounded-none transition-all">
                 Book Now
               </a>
@@ -204,7 +231,7 @@ const Navigation = ({ isMobileMenuOpen, setIsMobileMenuOpen, isAdminMode, setAdm
 
       {/* Mobile Menu Dropdown */}
       {isMobileMenuOpen && !isAdminMode && (
-        <div className="md:hidden bg-zinc-950 border-b border-zinc-900 font-mono">
+        <div className="md:hidden bg-black/90 backdrop-blur-xl border-b border-zinc-800 font-mono">
           <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3">
             <button onClick={() => { scrollToSection('hero'); setIsMobileMenuOpen(false); }} className="block w-full text-left px-3 py-4 text-sm font-bold uppercase text-white border-b border-zinc-900">Home</button>
             <button onClick={() => { scrollToSection('portfolio'); setIsMobileMenuOpen(false); }} className="block w-full text-left px-3 py-4 text-sm font-bold uppercase text-white border-b border-zinc-900">Work</button>
@@ -220,35 +247,38 @@ const Navigation = ({ isMobileMenuOpen, setIsMobileMenuOpen, isAdminMode, setAdm
 };
 
 const Hero = () => (
-  <div id="hero" className="relative h-screen flex items-center justify-center overflow-hidden bg-black">
-    {/* Background Effects - Very subtle now */}
-    <div className="absolute inset-0 bg-grain opacity-10 mix-blend-overlay z-[1] pointer-events-none"></div>
-
+  <div id="hero" className="relative h-screen flex items-center justify-center overflow-hidden">
+    {/* No Background color here to let video show through */}
+    
     <div className="relative z-10 flex flex-col items-center justify-center px-4 max-w-4xl mx-auto text-center h-full">
 
       {/* 1. Small Cyan Text */}
-      <p className="text-[#00D2BE] font-sans text-sm md:text-base mb-6 tracking-wide lowercase opacity-90">
+      <p className="text-[#00D2BE] font-sans text-sm md:text-base mb-6 tracking-wide lowercase opacity-90 drop-shadow-md">
         art in motion
       </p>
 
-      {/* 2. Main Block Text - Matching Reference (Bold, White, Uppercase, Boxy) */}
-      <h1 className="text-white font-mono font-bold text-sm md:text-lg leading-relaxed tracking-widest uppercase max-w-xl mx-auto mb-16">
+      {/* 2. Main Block Text */}
+      <h1 className="text-white font-mono font-bold text-sm md:text-lg leading-relaxed tracking-widest uppercase max-w-xl mx-auto mb-16 drop-shadow-lg">
         Professional media production with a focus on technical quality, organized workflow, and impactful results
       </h1>
 
-      {/* 3. Subtle Call to Actions (Optional, kept minimal) */}
+      {/* 3. Subtle Call to Actions */}
       <div className="flex flex-col md:flex-row gap-6 justify-center font-mono opacity-80 hover:opacity-100 transition-opacity">
-        <button onClick={() => scrollToSection('portfolio')} className="px-8 py-3 bg-transparent border border-zinc-700 hover:border-[#00D2BE] text-zinc-400 hover:text-white font-bold text-xs uppercase tracking-widest transition-all">
+        <button onClick={() => scrollToSection('portfolio')} className="px-8 py-3 bg-transparent border border-white/30 hover:border-[#00D2BE] text-zinc-300 hover:text-white font-bold text-xs uppercase tracking-widest transition-all">
           Explore Work
         </button>
       </div>
 
     </div>
+    
+    <div className="absolute bottom-10 left-1/2 transform -translate-x-1/2 animate-bounce text-zinc-500/50">
+      <ArrowDown size={24} />
+    </div>
   </div>
 );
 
 const Marquee = () => (
-  <div className="bg-[#00D2BE] overflow-hidden py-3">
+  <div className="bg-[#00D2BE]/90 backdrop-blur-sm overflow-hidden py-3 border-y border-black/10">
     {/* Boxy Font Marquee */}
     <div className="whitespace-nowrap animate-marquee flex gap-12 text-black font-mono font-bold uppercase tracking-widest text-lg">
       <span>Music Videos</span> <span>•</span>
@@ -326,9 +356,9 @@ const Portfolio = () => {
   }, [photoSubTab]);
 
   return (
-    <div id="portfolio" className="bg-zinc-900 py-32 px-4">
+    <div id="portfolio" className="bg-black/80 backdrop-blur-sm py-32 px-4 border-t border-white/5">
       <div className="max-w-7xl mx-auto">
-        <h2 className="text-3xl md:text-4xl font-serif font-black italic text-white mb-12 border-l-4 border-[#00D2BE] pl-6 uppercase">Selected Works</h2>
+        <h2 className="text-3xl md:text-4xl font-serif font-black italic text-white mb-12 border-l-4 border-[#00D2BE] pl-6 uppercase drop-shadow-lg">Selected Works</h2>
 
         {/* TABS NAVIGATION - Boxy Font */}
         <div className="flex flex-wrap gap-4 mb-12 font-mono">
@@ -348,7 +378,7 @@ const Portfolio = () => {
             <>
                 <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 mb-16">
                 {videos.map((item, idx) => (
-                    <a key={idx} href={item.link} target="_blank" rel="noopener noreferrer" className="group relative aspect-video bg-zinc-950 border border-zinc-800 overflow-hidden cursor-pointer block hover:border-[#00D2BE] transition-colors">
+                    <a key={idx} href={item.link} target="_blank" rel="noopener noreferrer" className="group relative aspect-video bg-black/50 border border-zinc-800 overflow-hidden cursor-pointer block hover:border-[#00D2BE] transition-colors">
                     <img src={item.img} alt={item.title} className="w-full h-full object-cover opacity-60 transition-all group-hover:opacity-40 group-hover:scale-105" />
                     <div className="absolute inset-0 flex items-center justify-center">
                         <PlayCircle className="w-16 h-16 text-white opacity-80 group-hover:opacity-100 group-hover:text-[#00D2BE] transition-all transform group-hover:scale-110" />
@@ -364,7 +394,7 @@ const Portfolio = () => {
                 ))}
                 </div>
                 <div className="flex justify-center font-mono">
-                    <a href={playlistUrl} target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 px-8 py-4 bg-zinc-900 hover:bg-zinc-800 text-white font-bold text-xs uppercase tracking-widest border border-zinc-800 hover:border-[#00D2BE] transition-all">
+                    <a href={playlistUrl} target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 px-8 py-4 bg-black/60 hover:bg-black/80 text-white font-bold text-xs uppercase tracking-widest border border-zinc-800 hover:border-[#00D2BE] transition-all">
                         <List size={18} className="text-[#00D2BE]"/> View Full Playlist
                     </a>
                 </div>
@@ -398,7 +428,7 @@ const Portfolio = () => {
                      </button>
                 </div>
 
-                <div className="relative w-full max-w-5xl mx-auto aspect-video bg-zinc-950 border border-zinc-800 overflow-hidden group">
+                <div className="relative w-full max-w-5xl mx-auto aspect-video bg-black/50 border border-zinc-800 overflow-hidden group">
                     <img
                         src={currentPhotoSet[currentSlide]}
                         alt={`Slide ${currentSlide + 1}`}
@@ -442,7 +472,7 @@ const Portfolio = () => {
         {activeTab === 'design' && (
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {designs.map((design) => (
-                    <div key={design.id} className="group relative aspect-square bg-zinc-900 overflow-hidden border border-zinc-800">
+                    <div key={design.id} className="group relative aspect-square bg-black/50 overflow-hidden border border-zinc-800">
                         <img src={design.src} alt={design.title} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110 opacity-80 group-hover:opacity-100"/>
                         <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
                             <h3 className="text-white font-serif text-2xl font-bold italic uppercase tracking-widest px-4 text-center">{design.title}</h3>
@@ -460,7 +490,7 @@ const Packages = () => {
     const [pricingCategory, setPricingCategory] = useState<'music' | 'corporate' | 'events'>('music');
 
     return (
-      <div id="packages" className="bg-zinc-950 py-32 px-4 relative overflow-hidden">
+      <div id="packages" className="bg-black/90 backdrop-blur-md py-32 px-4 relative overflow-hidden border-t border-white/5">
         <div className="absolute right-0 top-1/2 transform -translate-y-1/2 w-[500px] h-[500px] bg-[#00D2BE]/5 rounded-full blur-[120px] pointer-events-none"></div>
         <div className="max-w-6xl mx-auto relative z-10">
           <div className="text-center mb-12">
@@ -472,7 +502,7 @@ const Packages = () => {
 
           {/* Pricing Category Switcher */}
           <div className="flex justify-center mb-16">
-             <div className="inline-flex bg-zinc-900 p-1 border border-zinc-800 rounded-none">
+             <div className="inline-flex bg-black p-1 border border-zinc-800 rounded-none">
                 <button
                     onClick={() => setPricingCategory('music')}
                     className={`px-6 py-3 font-mono text-xs font-bold uppercase tracking-widest transition-all ${pricingCategory === 'music' ? 'bg-[#00D2BE] text-black shadow-lg' : 'text-zinc-500 hover:text-white'}`}
@@ -499,7 +529,7 @@ const Packages = () => {
             {pricingCategory === 'music' && (
                 <>
                     {/* THE ROLLOUT CARD */}
-                    <div className="bg-zinc-900 border border-zinc-800 p-10 hover:border-[#00D2BE] transition-all duration-300 flex flex-col group relative animate-in fade-in slide-in-from-bottom-4 duration-500">
+                    <div className="bg-zinc-900/60 border border-zinc-800 p-10 hover:border-[#00D2BE] transition-all duration-300 flex flex-col group relative animate-in fade-in slide-in-from-bottom-4 duration-500 backdrop-blur-sm">
                     <div className="absolute top-0 right-0 bg-[#00D2BE] text-black text-xs font-mono font-bold px-4 py-2 uppercase tracking-widest">Recommended</div>
                     <h3 className="text-3xl font-serif font-black text-white italic uppercase mb-2">The Rollout</h3>
                     <p className="text-zinc-500 font-mono text-xs uppercase tracking-widest mb-8">Full monthly dominance.</p>
@@ -517,7 +547,7 @@ const Packages = () => {
                     </div>
 
                     {/* THE SINGLE CARD */}
-                    <div className="bg-zinc-950 border border-zinc-900 p-10 hover:border-zinc-700 transition-all duration-300 flex flex-col animate-in fade-in slide-in-from-bottom-4 duration-700">
+                    <div className="bg-black/40 border border-zinc-900 p-10 hover:border-zinc-700 transition-all duration-300 flex flex-col animate-in fade-in slide-in-from-bottom-4 duration-700 backdrop-blur-sm">
                     <h3 className="text-3xl font-serif font-black text-white italic uppercase mb-2">The Single</h3>
                     <p className="text-zinc-500 font-mono text-xs uppercase tracking-widest mb-8">One-off visual execution.</p>
                     <div className="text-5xl font-serif font-black text-white mb-2">$450<span className="text-xl text-zinc-600 font-mono font-normal">/vid</span></div>
@@ -530,7 +560,7 @@ const Packages = () => {
                         </div>
                         ))}
                     </div>
-                    <a href="https://linktr.ee/azwclothing" target="_blank" rel="noreferrer" className="w-full py-4 bg-zinc-900 hover:bg-zinc-800 text-white font-mono font-bold text-sm uppercase tracking-widest text-center transition-all border border-zinc-800">Book Single</a>
+                    <a href="https://linktr.ee/azwclothing" target="_blank" rel="noreferrer" className="w-full py-4 bg-zinc-900/50 hover:bg-zinc-800 text-white font-mono font-bold text-sm uppercase tracking-widest text-center transition-all border border-zinc-800">Book Single</a>
                     </div>
                 </>
             )}
@@ -539,7 +569,7 @@ const Packages = () => {
             {pricingCategory === 'corporate' && (
                 <>
                     {/* SMALL TEAM CARD */}
-                    <div className="bg-zinc-950 border border-zinc-900 p-10 hover:border-zinc-700 transition-all duration-300 flex flex-col animate-in fade-in slide-in-from-bottom-4 duration-500">
+                    <div className="bg-black/40 border border-zinc-900 p-10 hover:border-zinc-700 transition-all duration-300 flex flex-col animate-in fade-in slide-in-from-bottom-4 duration-500 backdrop-blur-sm">
                         <div className="flex items-center gap-2 mb-2 text-[#00D2BE]"><User size={20}/></div>
                         <h3 className="text-3xl font-serif font-black text-white italic uppercase mb-2">Small Team</h3>
                         <p className="text-zinc-500 font-mono text-xs uppercase tracking-widest mb-8">Professional Headshots & Group.</p>
@@ -553,11 +583,11 @@ const Packages = () => {
                             </div>
                             ))}
                         </div>
-                        <a href="https://linktr.ee/azwclothing" target="_blank" rel="noreferrer" className="w-full py-4 bg-zinc-900 hover:bg-zinc-800 text-white font-mono font-bold text-sm uppercase tracking-widest text-center transition-all border border-zinc-800">Book Small Team</a>
+                        <a href="https://linktr.ee/azwclothing" target="_blank" rel="noreferrer" className="w-full py-4 bg-zinc-900/50 hover:bg-zinc-800 text-white font-mono font-bold text-sm uppercase tracking-widest text-center transition-all border border-zinc-800">Book Small Team</a>
                     </div>
 
                     {/* LARGE GROUP CARD */}
-                    <div className="bg-zinc-900 border border-zinc-800 p-10 hover:border-[#00D2BE] transition-all duration-300 flex flex-col animate-in fade-in slide-in-from-bottom-4 duration-700">
+                    <div className="bg-zinc-900/60 border border-zinc-800 p-10 hover:border-[#00D2BE] transition-all duration-300 flex flex-col animate-in fade-in slide-in-from-bottom-4 duration-700 backdrop-blur-sm">
                         <div className="flex items-center gap-2 mb-2 text-[#00D2BE]"><Users size={20}/></div>
                         <h3 className="text-3xl font-serif font-black text-white italic uppercase mb-2">Studio / Large</h3>
                         <p className="text-zinc-500 font-mono text-xs uppercase tracking-widest mb-8">High-End External Studio Setup.</p>
@@ -580,7 +610,7 @@ const Packages = () => {
             {pricingCategory === 'events' && (
                 <>
                     {/* STUDENT BUNDLE CARD */}
-                    <div className="bg-zinc-950 border border-zinc-900 p-10 hover:border-zinc-700 transition-all duration-300 flex flex-col animate-in fade-in slide-in-from-bottom-4 duration-500">
+                    <div className="bg-black/40 border border-zinc-900 p-10 hover:border-zinc-700 transition-all duration-300 flex flex-col animate-in fade-in slide-in-from-bottom-4 duration-500 backdrop-blur-sm">
                          <div className="flex items-center gap-2 mb-2 text-[#00D2BE]"><GraduationCap size={20}/></div>
                         <h3 className="text-3xl font-serif font-black text-white italic uppercase mb-2">Student Bundle</h3>
                         <p className="text-zinc-500 font-mono text-xs uppercase tracking-widest mb-8">Prom, Grad, Athletics, Homecoming.</p>
@@ -594,11 +624,11 @@ const Packages = () => {
                             </div>
                             ))}
                         </div>
-                        <a href="https://linktr.ee/azwclothing" target="_blank" rel="noreferrer" className="w-full py-4 bg-zinc-900 hover:bg-zinc-800 text-white font-mono font-bold text-sm uppercase tracking-widest text-center transition-all border border-zinc-800">Book Student</a>
+                        <a href="https://linktr.ee/azwclothing" target="_blank" rel="noreferrer" className="w-full py-4 bg-zinc-900/50 hover:bg-zinc-800 text-white font-mono font-bold text-sm uppercase tracking-widest text-center transition-all border border-zinc-800">Book Student</a>
                     </div>
 
                     {/* MAJOR EVENTS CARD */}
-                    <div className="bg-zinc-900 border border-zinc-800 p-10 hover:border-[#00D2BE] transition-all duration-300 flex flex-col animate-in fade-in slide-in-from-bottom-4 duration-700">
+                    <div className="bg-zinc-900/60 border border-zinc-800 p-10 hover:border-[#00D2BE] transition-all duration-300 flex flex-col animate-in fade-in slide-in-from-bottom-4 duration-700 backdrop-blur-sm">
                         <div className="flex items-center gap-2 mb-2 text-[#00D2BE]"><Camera size={20}/></div>
                         <h3 className="text-3xl font-serif font-black text-white italic uppercase mb-2">Major Events</h3>
                         <p className="text-zinc-500 font-mono text-xs uppercase tracking-widest mb-8">Weddings, Concerts, Reunions.</p>
@@ -659,8 +689,9 @@ const AdminLogin = ({ setView, setAdminMode }: AdminLoginProps) => {
   };
 
   return (
-    <div className="min-h-screen bg-black flex items-center justify-center">
-      <div className="w-full max-w-md p-8">
+    <div className="min-h-screen bg-black flex items-center justify-center relative">
+        <BackgroundVideo />
+      <div className="w-full max-w-md p-8 bg-black/80 border border-zinc-800 backdrop-blur-md">
         <h2 className="text-3xl font-serif font-black text-white uppercase italic mb-8">Staff Access</h2>
         {error && <div className="text-red-500 text-sm mb-4 font-mono">{error}</div>}
         <form onSubmit={handleLogin} className="space-y-4 font-mono">
@@ -722,7 +753,7 @@ const AdminDashboard = ({ user, setView }: AdminDashboardProps) => {
   }), { income: 0, expense: 0, net: 0 });
 
   return (
-    <div className="min-h-screen bg-black text-white p-8">
+    <div className="min-h-screen bg-zinc-950 text-white p-8">
       <div className="max-w-6xl mx-auto">
         <div className="flex justify-between items-center mb-12">
            <h1 className="text-4xl font-serif font-black italic uppercase">Dashboard</h1>
@@ -793,7 +824,6 @@ export default function App() {
 
   useEffect(() => {
     // Auth Init Logic for this Environment
-    // We check for a custom token from the environment first
     const initAuth = async () => {
         try {
             if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
@@ -834,7 +864,7 @@ export default function App() {
 
   // Otherwise show the landing page
   return (
-    <div className="font-sans bg-zinc-950 min-h-screen text-zinc-200 selection:bg-[#00D2BE] selection:text-black">
+    <div className="font-sans min-h-screen text-zinc-200 selection:bg-[#00D2BE] selection:text-black">
       {/* Inject Fonts via Style Tag for Single File Portability */}
       <style dangerouslySetInnerHTML={{__html: `
         @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=Space+Mono:ital,wght@0,400;0,700;1,400;1,700&display=swap');
@@ -862,6 +892,8 @@ export default function App() {
         }
       `}} />
 
+      <BackgroundVideo />
+
       <Navigation
           isAdminMode={isAdminMode}
           setAdminMode={setAdminMode}
@@ -876,7 +908,7 @@ export default function App() {
       <Portfolio />
       <Packages />
 
-      <footer className="bg-zinc-950 border-t border-zinc-900 py-12 px-4">
+      <footer className="bg-black/90 backdrop-blur-xl border-t border-zinc-900 py-12 px-4">
         <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center text-zinc-600 text-sm font-mono">
           <div className="flex items-center mb-4 md:mb-0">
              <span className="font-bold uppercase tracking-widest">© 2026 AZW</span>
@@ -892,5 +924,3 @@ export default function App() {
     </div>
   );
 }
-
-
