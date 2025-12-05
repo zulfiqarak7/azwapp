@@ -14,6 +14,7 @@ import {
   Image as ImageIcon,
   Palette,
   LayoutDashboard,
+  ArrowDown,
   ArrowLeft,
   ArrowRight,
   User,
